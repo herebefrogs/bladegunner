@@ -36,7 +36,12 @@ function createEntity(color) {
 
 function moveEntities(elapsed) {
   entities.forEach(function(entity) {
-    if (entity !== hero) {
+    if (entity === hero) {
+      if (entity.moveLeft) { entity.x += entity.speed * elapsed; }
+      if (entity.moveRight) { entity.x -= entity.speed * elapsed; }
+      if (entity.moveUp) { entity.y += entity.speed * elapsed; }
+      if (entity.moveDown) { entity.y -= entity.speed * elapsed; }
+    } else {
       entity.x += (entity.direction === DIRECTION_RIGHT ? 1 : entity.direction === DIRECTION_LEFT ? -1 : 0) * entity.speed * elapsed;
       entity.y += (entity.direction === DIRECTION_UP ? 1 : entity.direction === DIRECTION_DOWN ? -1 : 0) * entity.speed * elapsed;
     }
@@ -120,3 +125,18 @@ function render() {
 };
 
 addEventListener('load', init);
+addEventListener('keydown', function(e) {
+  if (e.which == 32) { hero.shoot = true; }
+  if (e.which == 37) { hero.moveRight = true; }
+  if (e.which == 38) { hero.moveUp = true; }
+  if (e.which == 39) { hero.moveLeft = true; }
+  if (e.which == 40) { hero.moveDown = true; }
+});
+
+addEventListener('keyup', function(e) {
+  if (e.which == 32) { hero.shoot = false; }
+  if (e.which == 37) { hero.moveRight = false; }
+  if (e.which == 38) { hero.moveUp = false; }
+  if (e.which == 39) { hero.moveLeft = false; }
+  if (e.which == 40) { hero.moveDown = false; }
+});
