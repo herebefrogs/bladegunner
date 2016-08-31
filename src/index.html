@@ -1,9 +1,22 @@
 <style>
   body {
     margin: 0;
-    font-family:Courier,monospace
+    font-family:Courier,monospace;
+    text-align: center;
+  }
+  canvas {
+    image-rendering: pixelated;
+  }
+  @media (min-aspect-ratio: 400/300) {
+    canvas {
+      height: 100%;
+    }
+  }
+  @media (max-aspect-ratio: 400/300) {
+    canvas {
+      width: 100%;
+    }
   }
 </style>
-<h1>Blade Gunner</h1>
 <canvas></canvas>
 <script src="js/game.js"></script>
