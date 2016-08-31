@@ -4,20 +4,28 @@ var canvas,
     lastTime,
     elapsedTime,
     entities = [],
+    hero,
+    DIRECTION_UP = 1,
+    DIRECTION_RIGHT = 2,
+    DIRECTION_DOWN = 3,
+    DIRECTION_LEFT = 4,
     MAX_ANDROIDS = 5,
     MIN_ANDROIDS = 1,
     MAX_BYSTANDERS = 100,
     MIN_BYSTANDERS = 25,
+    SPEED = 30, // pixels per seconds
     HEIGHT = 300,
     WIDTH = 400;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
-
 }
+
 function createEntity(color) {
   var entity = {
     color: color,
+    direction: randomInt(DIRECTION_UP, DIRECTION_LEFT),
+    speed: SPEED,
     height: 10,
     width: 10,
   };
@@ -26,7 +34,42 @@ function createEntity(color) {
   return entity;
 }
 
-function renderEntities(entities) {
+function moveEntities(elapsed) {
+  entities.forEach(function(entity) {
+    if (entity !== hero) {
+      entity.x += (entity.direction === DIRECTION_RIGHT ? 1 : entity.direction === DIRECTION_LEFT ? -1 : 0) * entity.speed * elapsed;
+      entity.y += (entity.direction === DIRECTION_UP ? 1 : entity.direction === DIRECTION_DOWN ? -1 : 0) * entity.speed * elapsed;
+    }
+  });
+}
+
+function containEntities() {
+  entities.forEach(function(entity) {
+    if (entity.x <= 0) {
+      entity.x = 0;
+      if (entity !== hero) {
+        entity.direction = DIRECTION_RIGHT;
+      }
+    } else if (entity.x + entity.width >= WIDTH) {
+      entity.x = WIDTH - entity.width;
+      if (entity !== hero) {
+        entity.direction = DIRECTION_LEFT;
+      }
+    } else if (entity.y - entity.height <= 0) {
+      entity.y = entity.height;
+      if (entity !== hero) {
+        entity.direction = DIRECTION_UP;
+      }
+    } else if (entity.y >= HEIGHT) {
+      entity.y = HEIGHT;
+      if (entity !== hero) {
+        entity.direction = DIRECTION_DOWN;
+      }
+    }
+  })
+}
+
+function renderEntities() {
   entities.forEach(function(entity) {
     ctx.fillStyle = entity.color;
     ctx.fillRect(entity.x, HEIGHT - entity.y, entity.width, entity.height);
@@ -43,7 +86,7 @@ function init() {
   ctx = canvas.getContext('2d');
 
   // hero
-  entities.push(createEntity('#00DD00'));
+  entities.push(hero = createEntity('#00DD00'));
   // glitchy androids
   for (var n = randomInt(MIN_ANDROIDS, MAX_ANDROIDS); n > 0; n--) {
     entities.push(createEntity('#DD0000'));
@@ -59,19 +102,21 @@ function init() {
 
 function loop() {
   currentTime = Date.now();
-  update(currentTime - lastTime);
+  update((currentTime - lastTime) / 1000);
   render();
   lastTime = currentTime;
   requestAnimationFrame(loop);
 };
 
-function update(e) {
+function update(elapsedTime) {
+  moveEntities(elapsedTime);
+  containEntities();
 };
 
 function render() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-  renderEntities(entities);
+  renderEntities();
 };
 
 addEventListener('load', init);
