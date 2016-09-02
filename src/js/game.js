@@ -66,8 +66,8 @@ function createEntity(type) {
     type: type,
     size: data[type].size
   };
-  entity.x = randomInt(entity.size, WIDTH - entity.size);
-  entity.y = randomInt(entity.size, HEIGHT - entity.size);
+  entity.x = randomInt(0, WIDTH - entity.size);
+  entity.y = randomInt(0, HEIGHT - entity.size);
   return entity;
 }
 
@@ -77,11 +77,11 @@ function moveEntities(elapsed) {
     if (entity === hero) {
       if (entity.moveLeft) { entity.x += speed * elapsed; }
       if (entity.moveRight) { entity.x -= speed * elapsed; }
-      if (entity.moveUp) { entity.y += speed * elapsed; }
-      if (entity.moveDown) { entity.y -= speed * elapsed; }
+      if (entity.moveUp) { entity.y -= speed * elapsed; }
+      if (entity.moveDown) { entity.y += speed * elapsed; }
     } else {
       entity.x += (entity.direction === DIRECTION_RIGHT ? 1 : entity.direction === DIRECTION_LEFT ? -1 : 0) * speed * elapsed;
-      entity.y += (entity.direction === DIRECTION_UP ? 1 : entity.direction === DIRECTION_DOWN ? -1 : 0) * speed * elapsed;
+      entity.y += (entity.direction === DIRECTION_DOWN ? 1 : entity.direction === DIRECTION_UP ? -1 : 0) * speed * elapsed;
     }
   });
 }
@@ -98,15 +98,15 @@ function containEntities() {
       if (entity !== hero) {
         entity.direction = DIRECTION_LEFT;
       }
-    } else if (entity.y - entity.size <= 0) {
-      entity.y = entity.size;
-      if (entity !== hero) {
-        entity.direction = DIRECTION_UP;
-      }
-    } else if (entity.y >= HEIGHT) {
-      entity.y = HEIGHT;
+    } else if (entity.y <= 0) {
+      entity.y = 0;
       if (entity !== hero) {
         entity.direction = DIRECTION_DOWN;
+      }
+    } else if (entity.y >= HEIGHT - entity.size) {
+      entity.y = HEIGHT - entity.size;
+      if (entity !== hero) {
+        entity.direction = DIRECTION_UP;
       }
     }
   })
@@ -115,7 +115,7 @@ function containEntities() {
 function renderEntities() {
   entities.forEach(function(entity) {
     var sprite = data[entity.type].sprites[0].walk[0];
-    ctx.drawImage(data.tileset, sprite.x, sprite.y, entity.size, entity.size, entity.x, HEIGHT - entity.y, entity.size, entity.size);
+    ctx.drawImage(data.tileset, sprite.x, sprite.y, entity.size, entity.size, entity.x, entity.y, entity.size, entity.size);
   });
 }
 
