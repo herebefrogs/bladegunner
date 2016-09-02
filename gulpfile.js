@@ -10,7 +10,6 @@ var fs = require('fs'),
     replace = require('gulp-replace'),
     webserver = require('gulp-webserver'),
     uglify = require('gulp-uglify'),
-    unzip = require('gulp-unzip'),
     zip = require('gulp-zip'),
     exclude_min = [];
     config = { js: [] };
@@ -44,7 +43,7 @@ gulp.task('clean', function() {
 gulp.task('initbuild', ['clean'], function() {
 
   var html, $, src, js = [];
- 
+
   // get a list of all js scripts from our dev file
   html = fs.readFileSync('src/index.html', 'utf-8', function(e, data) {
     return data;
@@ -108,16 +107,6 @@ gulp.task('zip', ['addjs'], function() {
 });
 
 
-// ?not sure why unzip
-gulp.task('unzip', ['zip'], function() {
-  var stream = gulp.src('./dist/game.zip')
-      .pipe(unzip())
-      .pipe(gulp.dest('./dist'));
-
-  return stream;
-});
-
-
 gulp.task('report', ['zip'], function() {
   var stat = fs.statSync('dist/game.zip'),
       limit = 1024 * 13,
@@ -135,25 +124,27 @@ gulp.task('report', ['zip'], function() {
 });
 
 
-// ? base64 encoding gif for inlining in js?
+// base64 encoding gif/png for inlining in js
 gulp.task('encode', function()  {
-  var files = fs.readdirSync('./a'),
-      gifs = [],
-      n, parts, base64;
+  var files = fs.readdirSync('src/'),
+      imgs = [],
+      n;
 
   for ( n in files) {
-    if (files[n].indexOf('.gif') !== -1) {
-      gifs.push(files[n]);
+    if (files[n].includes('.gif') || files[n].includes('.png')) {
+      imgs.push(files[n]);
     }
   }
 
-  for (n = 0; n < gifs.length; n += 1) {
+  for (n = 0; n < imgs.length; n += 1) {
 
-    fs.readFileSync('.a/'+gifs[n], function(err, data) {
-     console.log(err, data);
+    var img = imgs[n];
+
+    fs.readFile('src/' + img, function(err, original_data) {
+        var base64Image = original_data.toString('base64');
+        var append = 'data:image/' + img.split('.')[1] + ';base64,';
+        console.log(img, append+base64Image);
     });
-    parts = gifs[n].split('.'); 
-    console.log(parts[0], gifs[n], base64);
   }
 
 });
