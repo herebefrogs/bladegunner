@@ -5,45 +5,83 @@ var canvas,
     elapsedTime,
     entities = [],
     hero,
+    data = {
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlElEQVR42s2XQU4DMQxFfRQ2CLEGegs2cBdYILHhGO0BkBCXACFuwBVgywlMnakjx+NM0qnrIdKXMu5r+sdJ3ARg13ANqAWqhTEp+PUx0lIMcPBydYWyvxQDLzerpuswhgBWDYpkCujt/TOJ+vqtDmHks8VwvxiIXGpIp1kPxN+ZYiTXM07xZrS4WNpQjZGGLKaWxRqTmgxawNzYXAbw9wctLcUMUKugBTLARer8FTNA/bkMwnVmHk9vTYbi2dCWLwCWds3zG8mAtWtIeqFHMQUkQbklD2U0X2PCDHHh6zKkBzu5eEiy6kUUkxp9YPX3ibWee5mhPnyfoaVFmBQwipU8WkYyGdKnOGugHkYXRovRhdE09C8ylOdw4iYQyQy3AAsUi6xgFNccZyuuNy1mfEdSP1q9Rxk7w/ycn3eFcYqxDdVSHci4nhpdToxPdxuUkv/CrB4GvFqvGaobzOD984hxN9TKSotxNdQyMsVw5twMzTVD03aUDPVOE/drjLuhfdeMZo5uqLbjeM1oxtWQRy3y8vMHDNYv8X02M4UAAAAASUVORK5CYII=',
+      hero: {
+        speed: 30, // pixel per second
+        size: 9,
+        sprites: [
+          {
+            walk: [ {x: 0, y: 0}, {x: 9, y: 0}],
+            shoot: [ {x: 18, y: 0}, {x: 27, y: 0}]
+          }
+        ]
+      },
+      bystander: {
+        size: 9,
+        speed: 20, // pixels per second
+        sprites: [
+          {
+            walk: [ {x: 0, y: 18}, {x: 9, y: 18}]
+          },
+          {
+            walk: [ {x: 0, y: 9}, {x: 9, y: 9}]
+          }
+        ]
+      },
+      android: {
+        size: 9,
+        speed: 25, // pixels per second
+        sprites: [
+          {
+            walk: [ {x: 0, y: 9}, {x: 9, y: 9}],
+            shoot: [ {x: 18, y: 9}, {x: 27, y: 9}]
+          },
+          {
+            walk: [ {x: 0, y: 18}, {x: 9, y: 18}],
+            shoot: [ {x: 18, y: 18}, {x: 27, y: 18}]
+          }
+        ]
+      },
+    }
+    ANIM_INTERVAL = 0.25; // seconds between animation frames
     DIRECTION_UP = 1,
     DIRECTION_RIGHT = 2,
     DIRECTION_DOWN = 3,
     DIRECTION_LEFT = 4,
     MAX_ANDROIDS = 5,
     MIN_ANDROIDS = 1,
-    MAX_BYSTANDERS = 100,
+    MAX_BYSTANDERS = 75,
     MIN_BYSTANDERS = 25,
-    SPEED = 30, // pixels per seconds
-    HEIGHT = 300,
-    WIDTH = 400;
+    HEIGHT = 150,
+    WIDTH = 200;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
 
-function createEntity(color) {
+function createEntity(type) {
   var entity = {
-    color: color,
     direction: randomInt(DIRECTION_UP, DIRECTION_LEFT),
-    speed: SPEED,
-    height: 10,
-    width: 10,
+    type: type,
+    size: data[type].size
   };
-  entity.x = randomInt(entity.width, WIDTH - entity.width);
-  entity.y = randomInt(entity.height, HEIGHT - entity.height);
+  entity.x = randomInt(entity.size, WIDTH - entity.size);
+  entity.y = randomInt(entity.size, HEIGHT - entity.size);
   return entity;
 }
 
 function moveEntities(elapsed) {
   entities.forEach(function(entity) {
+    var speed = data[entity.type].speed;
     if (entity === hero) {
-      if (entity.moveLeft) { entity.x += entity.speed * elapsed; }
-      if (entity.moveRight) { entity.x -= entity.speed * elapsed; }
-      if (entity.moveUp) { entity.y += entity.speed * elapsed; }
-      if (entity.moveDown) { entity.y -= entity.speed * elapsed; }
+      if (entity.moveLeft) { entity.x += speed * elapsed; }
+      if (entity.moveRight) { entity.x -= speed * elapsed; }
+      if (entity.moveUp) { entity.y += speed * elapsed; }
+      if (entity.moveDown) { entity.y -= speed * elapsed; }
     } else {
-      entity.x += (entity.direction === DIRECTION_RIGHT ? 1 : entity.direction === DIRECTION_LEFT ? -1 : 0) * entity.speed * elapsed;
-      entity.y += (entity.direction === DIRECTION_UP ? 1 : entity.direction === DIRECTION_DOWN ? -1 : 0) * entity.speed * elapsed;
+      entity.x += (entity.direction === DIRECTION_RIGHT ? 1 : entity.direction === DIRECTION_LEFT ? -1 : 0) * speed * elapsed;
+      entity.y += (entity.direction === DIRECTION_UP ? 1 : entity.direction === DIRECTION_DOWN ? -1 : 0) * speed * elapsed;
     }
   });
 }
@@ -55,13 +93,13 @@ function containEntities() {
       if (entity !== hero) {
         entity.direction = DIRECTION_RIGHT;
       }
-    } else if (entity.x + entity.width >= WIDTH) {
-      entity.x = WIDTH - entity.width;
+    } else if (entity.x + entity.size >= WIDTH) {
+      entity.x = WIDTH - entity.size;
       if (entity !== hero) {
         entity.direction = DIRECTION_LEFT;
       }
-    } else if (entity.y - entity.height <= 0) {
-      entity.y = entity.height;
+    } else if (entity.y - entity.size <= 0) {
+      entity.y = entity.size;
       if (entity !== hero) {
         entity.direction = DIRECTION_UP;
       }
@@ -76,9 +114,9 @@ function containEntities() {
 
 function renderEntities() {
   entities.forEach(function(entity) {
-    ctx.fillStyle = entity.color;
-    ctx.fillRect(entity.x, HEIGHT - entity.y, entity.width, entity.height);
-});
+    var sprite = data[entity.type].sprites[0].walk[0];
+    ctx.drawImage(data.tileset, sprite.x, sprite.y, entity.size, entity.size, entity.x, HEIGHT - entity.y, entity.size, entity.size);
+  });
 }
 
 // Game loop
@@ -90,15 +128,20 @@ function init() {
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
 
+  // load base64 encoded tileset
+  var img = new Image();
+  img.src = data.tileset;
+  data.tileset = img;
+
   // hero
-  entities.push(hero = createEntity('#00DD00'));
+  entities.push(hero = createEntity('hero'));
   // glitchy androids
   for (var n = randomInt(MIN_ANDROIDS, MAX_ANDROIDS); n > 0; n--) {
-    entities.push(createEntity('#DD0000'));
+    entities.push(createEntity('android'));
   }
   // bystanders
   for (var n = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS); n > 0; n--) {
-    entities.push(createEntity('#0000DD'));
+    entities.push(createEntity('bystander'));
   }
 
   lastTime = Date.now();
