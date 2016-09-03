@@ -1,5 +1,7 @@
 var canvas,
     ctx,
+    viewport,
+    viewport_ctx,
     currentTime,
     lastTime,
     elapsedTime,
@@ -142,16 +144,36 @@ function renderEntities() {
     if (entity.type !== 'bullet') {
       sprite = sprite[entity.shoot ? 'shoot' : 'walk'][0];
     }
-    ctx.drawImage(data.tileset, sprite.x, sprite.y, entity.size, entity.size,
-                                entity.x, entity.y, entity.size, entity.size);
+    ctx.drawImage(data.tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
+                                Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
   });
 }
+
+function resize() {
+  var scaleToFit = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
+  viewport.width = WIDTH * scaleToFit;
+  viewport.height = HEIGHT * scaleToFit;
+
+  // disable smoothing on scaling
+  viewport_ctx.mozImageSmoothingEnabled = false;
+  viewport_ctx.webkitImageSmoothingEnabled = false;
+  viewport_ctx.msImageSmoothingEnabled = false;
+  viewport_ctx.imageSmoothingEnabled = false;
+};
 
 // Game loop
 function init() {
   document.title = 'Blade Gunner';
 
-  canvas = document.querySelector('canvas');
+  // visible canvas, in window dimensions
+  viewport = document.querySelector('canvas');
+  viewport_ctx = viewport.getContext('2d');
+
+  resize();
+  addEventListener('resize', resize);
+
+  // backbuffer canvas, in game dimensions
+  canvas = document.createElement('canvas');
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
@@ -193,6 +215,13 @@ function render() {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
   renderEntities();
+
+  // TODO won't need to do that when the background will be present
+  viewport_ctx.clearRect(0, 0, viewport.width, viewport.height);
+
+  // copy backbuffer onto visible canvas, scaling it to screen dimensions
+  viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
+                                 0, 0, viewport.width, viewport.height);
 };
 
 addEventListener('load', init);
