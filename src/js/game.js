@@ -1,4 +1,6 @@
-var canvas,
+var bg,
+    bg_ctx,
+    canvas,
     ctx,
     viewport,
     viewport_ctx,
@@ -10,6 +12,13 @@ var canvas,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABpUlEQVR42s2XzU0EMQyFXQoXhDgD2wUX6AUOSFwoAwpAQjQBQnRAC3ClArPOrCPHY09CNniI9KTE823mTX68CcCu4D2gFqgSxqTgx9tMazHAwdPNGcr6Wgw8XWyqrsMYAlgeFMkU0MvrexLV9Vftw8i2xXC96IhcakgPs+6If7PESK6ln+LLaHGxtCGPkYYsxhtFj0lFBi2gN9bLAH5/oaW1mAmqJbRABjhJHT9jBqjeyyCcZ+b28NJkKJ4NbfkCYGnXPL+RDFi7hqQXehRTQBKUW3JfRvMeE2aIE1+TId3ZwclNkpUvophU6IFV/02s1m5lpvzweYSWVmFSwEhW8mgZyWRIn+KsjloYnRgtRidG09C/GKE8hws3gUhmugVYoFhkBaO4aj9bcb6pMfM7knqpe48ydob5nNu7xLjE2Ia8oQ5khp4ah5wY764eUEr+C7NaGFgobja2SqsZyhvM4PXjjOEXs6QZOsg1m/LM6FGpMfxiFhvoMlQzssTwyA0boV4zNG2SGbaGWqeJ6x4Do0rvmtHMnxvydhyvGc0MNTQiF43y8wPwAl25ySr59wAAAABJRU5ErkJggg==',
+      bg: {
+        size: 9,
+        sprites: [
+          { x: 0, y: 27 },
+          { x: 9, y: 27 }
+        ]
+      },
       bullet: {
         speed: 60,
         size: 5,
@@ -64,8 +73,8 @@ var canvas,
     MIN_ANDROIDS = 1,
     MAX_BYSTANDERS = 75,
     MIN_BYSTANDERS = 25,
-    HEIGHT = 150,
-    WIDTH = 200;
+    HEIGHT = 153,
+    WIDTH = 198;
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
@@ -149,6 +158,16 @@ function renderEntities() {
   });
 }
 
+function createBackground() {
+  var size = data.bg.size;
+  for (var x = 0; x < WIDTH; x += size) {
+    for (var y = 0; y < HEIGHT; y += size) {
+      var sprite = data.bg.sprites[randomInt(1, 10) > 9 ? 1 : 0];
+      bg_ctx.drawImage(data.tileset, sprite.x, sprite.y, size, size, x, y, size, size);
+    }
+  }
+}
+
 function resize() {
   var scaleToFit = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
   viewport.width = WIDTH * scaleToFit;
@@ -178,10 +197,17 @@ function init() {
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
 
+  bg = document.createElement('canvas')
+  bg.width = WIDTH;
+  bg.height = HEIGHT;
+  bg_ctx = bg.getContext('2d');
+
   // load base64 encoded tileset
   var img = new Image();
   img.src = data.tileset;
   data.tileset = img;
+
+  createBackground();
 
   // hero
   entities.push(hero = createHero());
@@ -212,14 +238,11 @@ function update(elapsedTime) {
 };
 
 function render() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  ctx.drawImage(bg, 0, 0);
 
   renderEntities();
 
-  // TODO won't need to do that when the background will be present
-  viewport_ctx.clearRect(0, 0, viewport.width, viewport.height);
-
-  // copy backbuffer onto visible canvas, scaling it to screen dimensions
+  // copy backbuffer onto visible canvas, scaling them to screen dimensions
   viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
                                  0, 0, viewport.width, viewport.height);
 };
