@@ -122,26 +122,22 @@ function containEntities() {
     if (entity.x <= 0) {
       entity.x = 0;
       if (entity !== hero) {
-        entity.direction ^= DIRECTION_LEFT;
-        entity.direction |= DIRECTION_RIGHT
+        entity.direction = (entity.direction ^ DIRECTION_LEFT) | DIRECTION_RIGHT;
       }
     } else if (entity.x + entity.size >= WIDTH) {
       entity.x = WIDTH - entity.size;
       if (entity !== hero) {
-        entity.direction ^= DIRECTION_RIGHT;
-        entity.direction |= DIRECTION_LEFT;
+        entity.direction = (entity.direction ^ DIRECTION_RIGHT) | DIRECTION_LEFT;
       }
     } else if (entity.y <= 0) {
       entity.y = 0;
       if (entity !== hero) {
-        entity.direction ^= DIRECTION_UP;
-        entity.direction |= DIRECTION_DOWN;
+        entity.direction = (entity.direction ^ DIRECTION_UP) | DIRECTION_DOWN;
       }
     } else if (entity.y >= HEIGHT - entity.size) {
       entity.y = HEIGHT - entity.size;
       if (entity !== hero) {
-        entity.direction ^= DIRECTION_DOWN;
-        entity.direction |= DIRECTION_UP;
+        entity.direction = (entity.direction ^ DIRECTION_DOWN) | DIRECTION_UP;
       }
     }
   })
