@@ -104,57 +104,86 @@ function createBullet(entity) {
   attrs.direction = entity.direction || (entity.facingRight ? DIRECTION_RIGHT : DIRECTION_LEFT);
   attrs.x = entity.x;
   attrs.y = entity.y;
+  // place bullet outside of entity bounding box (to avoid immediate entity kill)
+  if (attrs.direction & DIRECTION_LEFT) { attrs.x -= attrs.size; }
+  if (attrs.direction & DIRECTION_RIGHT) { attrs.x += entity.size; }
+  if (attrs.direction & DIRECTION_UP) { attrs.y -= attrs.size; }
+  if (attrs.direction & DIRECTION_DOWN) { attrs.y += entity.size; }
+  // center bullet halfway along the sprite if no diagonal motion
+  if (!(attrs.direction & DIRECTION_LEFT) && !(attrs.direction & DIRECTION_RIGHT)) { attrs.x += (entity.size - attrs.size) / 2; }
+  if (!(attrs.direction & DIRECTION_UP) && !(attrs.direction & DIRECTION_DOWN)) { attrs.y += (entity.size - attrs.size) / 2; }
   return attrs;
 }
 
-function moveEntities(elapsed) {
-  entities.forEach(function(entity) {
-    var speed = data[entity.type].speed;
-    if (entity.direction & DIRECTION_RIGHT) { entity.x += speed * elapsed; }
-    if (entity.direction & DIRECTION_LEFT) { entity.x -= speed * elapsed; }
-    if (entity.direction & DIRECTION_UP) { entity.y -= speed * elapsed; }
-    if (entity.direction & DIRECTION_DOWN) { entity.y += speed * elapsed; }
-  });
+function moveEntity(entity, elapsed) {
+  var distance = data[entity.type].speed * elapsed;
+  if (entity.direction & DIRECTION_RIGHT) { entity.x += distance; }
+  // no else if, hero could be moving left and right (effectively immobile)
+  if (entity.direction & DIRECTION_LEFT) { entity.x -= distance; }
+  if (entity.direction & DIRECTION_UP) { entity.y -= distance; }
+  // no else if, hero could be moving up and down (effectively immobile)
+  if (entity.direction & DIRECTION_DOWN) { entity.y += distance; }
 }
 
-function containEntities() {
-  entities.forEach(function(entity) {
-    if (entity.x <= 0) {
-      entity.x = 0;
-      if (entity !== hero) {
-        entity.direction = (entity.direction ^ DIRECTION_LEFT) | DIRECTION_RIGHT;
-      }
+function containEntity(entity) {
+  if (entity.x <= 0) {
+    entity.x = 0;
+    if (entity !== hero) {
+      entity.direction = (entity.direction ^ DIRECTION_LEFT) | DIRECTION_RIGHT;
     }
-    if (entity.x + entity.size >= WIDTH) {
-      entity.x = WIDTH - entity.size;
-      if (entity !== hero) {
-        entity.direction = (entity.direction ^ DIRECTION_RIGHT) | DIRECTION_LEFT;
-      }
+  } else if (entity.x + entity.size >= WIDTH) {
+    entity.x = WIDTH - entity.size;
+    if (entity !== hero) {
+      entity.direction = (entity.direction ^ DIRECTION_RIGHT) | DIRECTION_LEFT;
     }
-    if (entity.y <= 0) {
-      entity.y = 0;
-      if (entity !== hero) {
-        entity.direction = (entity.direction ^ DIRECTION_UP) | DIRECTION_DOWN;
-      }
+  }
+  if (entity.y <= 0) {
+    entity.y = 0;
+    if (entity !== hero) {
+      entity.direction = (entity.direction ^ DIRECTION_UP) | DIRECTION_DOWN;
     }
-    if (entity.y >= HEIGHT - entity.size) {
-      entity.y = HEIGHT - entity.size;
-      if (entity !== hero) {
-        entity.direction = (entity.direction ^ DIRECTION_DOWN) | DIRECTION_UP;
-      }
+  } else if (entity.y >= HEIGHT - entity.size) {
+    entity.y = HEIGHT - entity.size;
+    if (entity !== hero) {
+      entity.direction = (entity.direction ^ DIRECTION_DOWN) | DIRECTION_UP;
     }
-  })
+  }
 }
 
-function renderEntities() {
-  entities.forEach(function(entity) {
-    var sprite = data[entity.type].sprites[0];
-    if (entity.type !== 'bullet') {
-      sprite = sprite[entity.shoot ? 'shoot' : 'walk'][0];
+function containBullet(bullet, i) {
+  // bullet out of screen?
+  var discard = (bullet.x <= 0 || bullet.x + bullet.size >= WIDTH
+                 || bullet.y <= 0 || bullet.y >= HEIGHT - bullet.size);
+
+  if (!discard) {
+    // cache some collision math
+    var bullet_up = bullet.y + bullet.size;
+    var bullet_right = bullet.x + bullet.size;
+
+    for (var n in entities) {
+      var entity = entities[n];
+      // bullet hit entity?
+      discard = bullet_up > entity.y && bullet.x < entity.x + entity.size
+                && bullet.y < entity.y + entity.size && bullet_right > entity.x;
+      if (discard) {
+        entities.splice(n, 1);
+        break;
+      }
     }
-    ctx.drawImage(data.tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
-                                Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
-  });
+  }
+
+  if (discard) {
+    bullets.splice(i, 1);
+  }
+}
+
+function renderEntity(entity) {
+  var sprite = data[entity.type].sprites[0];
+  if (entity.type !== 'bullet') {
+    sprite = sprite[entity.shoot ? 'shoot' : 'walk'][0];
+  }
+  ctx.drawImage(data.tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
+                              Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 }
 
 function createBackground() {
@@ -232,14 +261,21 @@ function loop() {
 };
 
 function update(elapsedTime) {
-  moveEntities(elapsedTime);
-  containEntities();
+  entities.forEach(function(entity) {
+    moveEntity(entity, elapsedTime);
+    containEntity(entity);
+  });
+  bullets.forEach(function(bullet, i) {
+    moveEntity(bullet, elapsedTime);
+    containBullet(bullet, i);
+  });
 };
 
 function render() {
   ctx.drawImage(bg, 0, 0);
 
-  renderEntities();
+  entities.forEach(renderEntity);
+  bullets.forEach(renderEntity);
 
   // copy backbuffer onto visible canvas, scaling them to screen dimensions
   viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
@@ -247,10 +283,12 @@ function render() {
 };
 
 addEventListener('load', init);
+// TODO remove listeners if hero gets killed
+// TODO add listeners on init (will be easier when title menu)
 addEventListener('keydown', function(e) {
   if (e.which == 32) {
     hero.shoot = true;
-    entities.push(createBullet(hero));
+    bullets.push(createBullet(hero));
   }
   if (e.which == 37) { hero.direction |= DIRECTION_LEFT; hero.facingRight = false; }
   if (e.which == 38) { hero.direction |= DIRECTION_UP; }
