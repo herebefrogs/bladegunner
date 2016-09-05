@@ -9,6 +9,8 @@ var bg,
     elapsedTime,
     entities = [],
     bullets = [],
+    nb_androids,
+    nb_bystanders,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABpUlEQVR42s2XzU0EMQyFXQoXhDgD2wUX6AUOSFwoAwpAQjQBQnRAC3ClArPOrCPHY09CNniI9KTE823mTX68CcCu4D2gFqgSxqTgx9tMazHAwdPNGcr6Wgw8XWyqrsMYAlgeFMkU0MvrexLV9Vftw8i2xXC96IhcakgPs+6If7PESK6ln+LLaHGxtCGPkYYsxhtFj0lFBi2gN9bLAH5/oaW1mAmqJbRABjhJHT9jBqjeyyCcZ+b28NJkKJ4NbfkCYGnXPL+RDFi7hqQXehRTQBKUW3JfRvMeE2aIE1+TId3ZwclNkpUvophU6IFV/02s1m5lpvzweYSWVmFSwEhW8mgZyWRIn+KsjloYnRgtRidG09C/GKE8hws3gUhmugVYoFhkBaO4aj9bcb6pMfM7knqpe48ydob5nNu7xLjE2Ia8oQ5khp4ah5wY764eUEr+C7NaGFgobja2SqsZyhvM4PXjjOEXs6QZOsg1m/LM6FGpMfxiFhvoMlQzssTwyA0boV4zNG2SGbaGWqeJ6x4Do0rvmtHMnxvydhyvGc0MNTQiF43y8wPwAl25ySr59wAAAABJRU5ErkJggg==',
@@ -166,7 +168,7 @@ function containBullet(bullet, i) {
       discard = bullet_up > entity.y && bullet.x < entity.x + entity.size
                 && bullet.y < entity.y + entity.size && bullet_right > entity.x;
       if (discard) {
-        entities.splice(n, 1);
+        updateScore(entities.splice(n, 1)[0]);
         break;
       }
     }
@@ -174,6 +176,20 @@ function containBullet(bullet, i) {
 
   if (discard) {
     bullets.splice(i, 1);
+  }
+}
+
+function updateScore(entity) {
+  if (entity.type === 'bystander') { nb_bystanders--; }
+  if (entity.type === 'android') { nb_androids--; }
+  if (entity.type === 'hero') { hero = undefined; }
+}
+
+function checkEndGame() {
+  if (!(hero && nb_bystanders)) {
+    console.log('game over - you loose!');
+  } else if (!nb_androids) {
+    console.log('game over - you win!');
   }
 }
 
@@ -240,11 +256,13 @@ function init() {
   // hero
   entities.push(hero = createHero());
   // glitchy androids
-  for (var n = randomInt(MIN_ANDROIDS, MAX_ANDROIDS); n > 0; n--) {
+  nb_androids = randomInt(MIN_ANDROIDS, MAX_ANDROIDS);
+  for (var n = nb_androids; n > 0; n--) {
     entities.push(createEntity('android'));
   }
   // bystanders
-  for (var n = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS); n > 0; n--) {
+  nb_bystanders = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS);
+  for (var n = nb_bystanders; n > 0; n--) {
     entities.push(createEntity('bystander'));
   }
 
@@ -269,6 +287,7 @@ function update(elapsedTime) {
     moveEntity(bullet, elapsedTime);
     containBullet(bullet, i);
   });
+  checkEndGame();
 };
 
 function render() {
