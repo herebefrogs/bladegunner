@@ -11,6 +11,8 @@ var bg,
     bullets = [],
     nb_androids,
     nb_bystanders,
+    nb_retires,
+    nb_casualties,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABpUlEQVR42s2XzU0EMQyFXQoXhDgD2wUX6AUOSFwoAwpAQjQBQnRAC3ClArPOrCPHY09CNniI9KTE823mTX68CcCu4D2gFqgSxqTgx9tMazHAwdPNGcr6Wgw8XWyqrsMYAlgeFMkU0MvrexLV9Vftw8i2xXC96IhcakgPs+6If7PESK6ln+LLaHGxtCGPkYYsxhtFj0lFBi2gN9bLAH5/oaW1mAmqJbRABjhJHT9jBqjeyyCcZ+b28NJkKJ4NbfkCYGnXPL+RDFi7hqQXehRTQBKUW3JfRvMeE2aIE1+TId3ZwclNkpUvophU6IFV/02s1m5lpvzweYSWVmFSwEhW8mgZyWRIn+KsjloYnRgtRidG09C/GKE8hws3gUhmugVYoFhkBaO4aj9bcb6pMfM7knqpe48ydob5nNu7xLjE2Ia8oQ5khp4ah5wY764eUEr+C7NaGFgobja2SqsZyhvM4PXjjOEXs6QZOsg1m/LM6FGpMfxiFhvoMlQzssTwyA0boV4zNG2SGbaGWqeJ6x4Do0rvmtHMnxvydhyvGc0MNTQiF43y8wPwAl25ySr59wAAAABJRU5ErkJggg==',
@@ -66,6 +68,11 @@ var bg,
         ]
       },
     }
+    TITLE = 'BLADEGUNNER',
+    FONT = '8px Courier',
+    GREY = '#343635',
+    WHITE = '#fff1e8',
+    RED = '#ff004d',
     ANIM_INTERVAL = 0.25; // seconds between animation frames
     DIRECTION_UP = 1,
     DIRECTION_RIGHT = 2,
@@ -139,8 +146,9 @@ function containEntity(entity) {
       entity.direction = (entity.direction ^ DIRECTION_RIGHT) | DIRECTION_LEFT;
     }
   }
-  if (entity.y <= 0) {
-    entity.y = 0;
+  // skip one tile vertically for score
+  if (entity.y <= data.bg.size) {
+    entity.y = data.bg.size;
     if (entity !== hero) {
       entity.direction = (entity.direction ^ DIRECTION_UP) | DIRECTION_DOWN;
     }
@@ -155,7 +163,7 @@ function containEntity(entity) {
 function containBullet(bullet, i) {
   // bullet out of screen?
   var discard = (bullet.x <= 0 || bullet.x + bullet.size >= WIDTH
-                 || bullet.y <= 0 || bullet.y >= HEIGHT - bullet.size);
+                 || bullet.y <= data.bg.size || bullet.y >= HEIGHT - bullet.size);
 
   if (!discard) {
     // cache some collision math
@@ -180,15 +188,15 @@ function containBullet(bullet, i) {
 }
 
 function updateScore(entity) {
-  if (entity.type === 'bystander') { nb_bystanders--; }
-  if (entity.type === 'android') { nb_androids--; }
+  if (entity.type === 'bystander') { nb_casualties++ }
+  if (entity.type === 'android') { nb_retires++; }
   if (entity.type === 'hero') { hero = undefined; }
 }
 
 function checkEndGame() {
-  if (!(hero && nb_bystanders)) {
+  if (!hero || nb_bystanders === nb_casualties) {
     console.log('game over - you loose!');
-  } else if (!nb_androids) {
+  } else if (nb_retires === nb_androids) {
     console.log('game over - you win!');
   }
 }
@@ -202,10 +210,22 @@ function renderEntity(entity) {
                               Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 }
 
+function renderScore() {
+  ctx.fillStyle = GREY;
+  ctx.fillRect(0, 0, WIDTH, data.bg.size);
+  ctx.fillStyle = RED;
+  ctx.fillText(TITLE, 0, 0);
+  ctx.fillStyle = WHITE;
+  ctx.fillText('kills: ' + nb_retires, WIDTH / 3, 0);
+  var casualties = 'casulaties: ' + nb_casualties;
+  ctx.fillText(casualties, WIDTH - ctx.measureText(casualties).width, 0);
+}
+
 function createBackground() {
   var size = data.bg.size;
   for (var x = 0; x < WIDTH; x += size) {
-    for (var y = 0; y < HEIGHT; y += size) {
+    // skip one tile vertically for score
+    for (var y = size; y < HEIGHT; y += size) {
       var sprite = data.bg.sprites[randomInt(1, 10) > 9 ? 1 : 0];
       bg_ctx.drawImage(data.tileset, sprite.x, sprite.y, size, size, x, y, size, size);
     }
@@ -226,7 +246,7 @@ function resize() {
 
 // Game loop
 function init() {
-  document.title = 'Blade Gunner';
+  document.title = TITLE;
 
   // visible canvas, in window dimensions
   viewport = document.querySelector('canvas');
@@ -240,6 +260,8 @@ function init() {
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
+  ctx.font = FONT;
+  ctx.textBaseline = 'top';
 
   bg = document.createElement('canvas')
   bg.width = WIDTH;
@@ -253,6 +275,8 @@ function init() {
 
   createBackground();
 
+  nb_retires = 0;
+  nb_casualties = 0;
   // hero
   entities.push(hero = createHero());
   // glitchy androids
@@ -295,6 +319,7 @@ function render() {
 
   entities.forEach(renderEntity);
   bullets.forEach(renderEntity);
+  renderScore();
 
   // copy backbuffer onto visible canvas, scaling them to screen dimensions
   viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
