@@ -7,12 +7,14 @@ var bg,
     currentTime,
     lastTime,
     elapsedTime,
+    requestId,
     entities = [],
     bullets = [],
     nb_androids,
     nb_bystanders,
     nb_retires,
     nb_casualties,
+    hero_dead,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABpUlEQVR42s2XzU0EMQyFXQoXhDgD2wUX6AUOSFwoAwpAQjQBQnRAC3ClArPOrCPHY09CNniI9KTE823mTX68CcCu4D2gFqgSxqTgx9tMazHAwdPNGcr6Wgw8XWyqrsMYAlgeFMkU0MvrexLV9Vftw8i2xXC96IhcakgPs+6If7PESK6ln+LLaHGxtCGPkYYsxhtFj0lFBi2gN9bLAH5/oaW1mAmqJbRABjhJHT9jBqjeyyCcZ+b28NJkKJ4NbfkCYGnXPL+RDFi7hqQXehRTQBKUW3JfRvMeE2aIE1+TId3ZwclNkpUvophU6IFV/02s1m5lpvzweYSWVmFSwEhW8mgZyWRIn+KsjloYnRgtRidG09C/GKE8hws3gUhmugVYoFhkBaO4aj9bcb6pMfM7knqpe48ydob5nNu7xLjE2Ia8oQ5khp4ah5wY764eUEr+C7NaGFgobja2SqsZyhvM4PXjjOEXs6QZOsg1m/LM6FGpMfxiFhvoMlQzssTwyA0boV4zNG2SGbaGWqeJ6x4Do0rvmtHMnxvydhyvGc0MNTQiF43y8wPwAl25ySr59wAAAABJRU5ErkJggg==',
@@ -190,15 +192,36 @@ function containBullet(bullet, i) {
 function updateScore(entity) {
   if (entity.type === 'bystander') { nb_casualties++ }
   if (entity.type === 'android') { nb_retires++; }
-  if (entity.type === 'hero') { hero = undefined; }
+  if (entity.type === 'hero') { hero_dead = true; }
 }
 
 function checkEndGame() {
-  if (!hero || nb_bystanders === nb_casualties) {
-    console.log('game over - you loose!');
+  if (hero_dead || nb_bystanders === nb_casualties) {
+    endGame(false);
   } else if (nb_retires === nb_androids) {
-    console.log('game over - you win!');
+    endGame(true);
   }
+}
+
+function endGame(win) {
+  cancelAnimationFrame(requestId);
+  requestId = undefined;
+
+  removeEventListener('keydown', keyPressed);
+  removeEventListener('keyup', keyReleased);
+
+  addEventListener('keydown', newGame);
+
+  requestAnimationFrame(function() {
+    ctx.fillStyle = GREY;
+    ctx.fillRect(0, data.bg.size, WIDTH, HEIGHT - data.bg.size);
+    ctx.fillStyle = WHITE;
+    var text = 'You ' + (win ? 'win!' : 'loose!');
+    ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
+    text = 'Press SPACE to play again';
+    ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
+    blit();
+  });
 }
 
 function renderEntity(entity) {
@@ -244,6 +267,63 @@ function resize() {
   viewport_ctx.imageSmoothingEnabled = false;
 };
 
+function newGame(keyEvent) {
+  if (keyEvent.which == 32) {
+    startGame();
+  }
+};
+
+function keyPressed(keyEvent) {
+  if (keyEvent.which == 32) {
+    hero.shoot = true;
+    bullets.push(createBullet(hero));
+  }
+  if (keyEvent.which == 37) { hero.direction |= DIRECTION_LEFT; hero.facingRight = false; }
+  if (keyEvent.which == 38) { hero.direction |= DIRECTION_UP; }
+  if (keyEvent.which == 39) { hero.direction |= DIRECTION_RIGHT; hero.facingRight = true; }
+  if (keyEvent.which == 40) { hero.direction |= DIRECTION_DOWN; }
+}
+
+function keyReleased(keyEvent) {
+  if (keyEvent.which == 32) { hero.shoot = false; }
+  if (keyEvent.which == 37) { hero.direction ^= DIRECTION_LEFT; }
+  if (keyEvent.which == 38) { hero.direction ^= DIRECTION_UP; }
+  if (keyEvent.which == 39) { hero.direction ^= DIRECTION_RIGHT; }
+  if (keyEvent.which == 40) { hero.direction ^= DIRECTION_DOWN; }
+}
+
+function startGame() {
+  removeEventListener('keydown', newGame);
+
+  createBackground();
+
+  nb_retires = 0;
+  nb_casualties = 0;
+  hero_dead = false;
+
+  entities = [];
+  bullets = [];
+
+  // hero
+  entities.push(hero = createHero());
+  // glitchy androids
+  nb_androids = randomInt(MIN_ANDROIDS, MAX_ANDROIDS);
+  for (var n = nb_androids; n > 0; n--) {
+    entities.push(createEntity('android'));
+  }
+  // bystanders
+  nb_bystanders = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS);
+  for (var n = nb_bystanders; n > 0; n--) {
+    entities.push(createEntity('bystander'));
+  }
+
+  addEventListener('keydown', keyPressed);
+  addEventListener('keyup', keyReleased);
+
+  lastTime = Date.now();
+  requestId = requestAnimationFrame(loop);
+}
+
 // Game loop
 function init() {
   document.title = TITLE;
@@ -273,25 +353,7 @@ function init() {
   img.src = data.tileset;
   data.tileset = img;
 
-  createBackground();
-
-  nb_retires = 0;
-  nb_casualties = 0;
-  // hero
-  entities.push(hero = createHero());
-  // glitchy androids
-  nb_androids = randomInt(MIN_ANDROIDS, MAX_ANDROIDS);
-  for (var n = nb_androids; n > 0; n--) {
-    entities.push(createEntity('android'));
-  }
-  // bystanders
-  nb_bystanders = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS);
-  for (var n = nb_bystanders; n > 0; n--) {
-    entities.push(createEntity('bystander'));
-  }
-
-  lastTime = Date.now();
-  loop();
+  startGame();
 };
 
 function loop() {
@@ -299,7 +361,9 @@ function loop() {
   update((currentTime - lastTime) / 1000);
   render();
   lastTime = currentTime;
-  requestAnimationFrame(loop);
+  if (requestId) {
+    requestId = requestAnimationFrame(loop);
+  }
 };
 
 function update(elapsedTime) {
@@ -314,6 +378,12 @@ function update(elapsedTime) {
   checkEndGame();
 };
 
+function blit() {
+  // copy backbuffer onto visible canvas, scaling them to screen dimensions
+  viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
+                                 0, 0, viewport.width, viewport.height);
+}
+
 function render() {
   ctx.drawImage(bg, 0, 0);
 
@@ -321,29 +391,7 @@ function render() {
   bullets.forEach(renderEntity);
   renderScore();
 
-  // copy backbuffer onto visible canvas, scaling them to screen dimensions
-  viewport_ctx.drawImage(canvas, 0, 0, WIDTH, HEIGHT,
-                                 0, 0, viewport.width, viewport.height);
+  blit();
 };
 
 addEventListener('load', init);
-// TODO remove listeners if hero gets killed
-// TODO add listeners on init (will be easier when title menu)
-addEventListener('keydown', function(e) {
-  if (e.which == 32) {
-    hero.shoot = true;
-    bullets.push(createBullet(hero));
-  }
-  if (e.which == 37) { hero.direction |= DIRECTION_LEFT; hero.facingRight = false; }
-  if (e.which == 38) { hero.direction |= DIRECTION_UP; }
-  if (e.which == 39) { hero.direction |= DIRECTION_RIGHT; hero.facingRight = true; }
-  if (e.which == 40) { hero.direction |= DIRECTION_DOWN; }
-});
-
-addEventListener('keyup', function(e) {
-  if (e.which == 32) { hero.shoot = false; }
-  if (e.which == 37) { hero.direction ^= DIRECTION_LEFT; }
-  if (e.which == 38) { hero.direction ^= DIRECTION_UP; }
-  if (e.which == 39) { hero.direction ^= DIRECTION_RIGHT; }
-  if (e.which == 40) { hero.direction ^= DIRECTION_DOWN; }
-});
