@@ -124,27 +124,13 @@ gulp.task('report', ['zip'], function() {
 });
 
 
-// base64 encoding gif/png for inlining in js
+// base64 encode png spritesheet asset and inline it in js
 gulp.task('encode', function()  {
-  var files = fs.readdirSync('src/'),
-      imgs = [],
-      n;
+  fs.readFile('src/assets.png', function(err, original_data) {
+    var base64Image = 'data:image/png;base64,' + original_data.toString('base64');
 
-  for ( n in files) {
-    if (files[n].includes('.gif') || files[n].includes('.png')) {
-      imgs.push(files[n]);
-    }
-  }
-
-  for (n = 0; n < imgs.length; n += 1) {
-
-    var img = imgs[n];
-
-    fs.readFile('src/' + img, function(err, original_data) {
-        var base64Image = original_data.toString('base64');
-        var append = 'data:image/' + img.split('.')[1] + ';base64,';
-        console.log(img, append+base64Image);
-    });
-  }
-
+    gulp.src('src/js/game.js')
+      .pipe(replace(/tileset: '.*'/gm, 'tileset: \'' + base64Image + '\''))
+      .pipe(gulp.dest('./src/js/'));
+  });
 });
