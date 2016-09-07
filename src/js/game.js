@@ -221,7 +221,7 @@ function endGame(win) {
     ctx.fillStyle = WHITE;
     var text = 'You ' + (win ? 'win!' : 'loose!');
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
-    text = 'Press SPACE to play again';
+    text = 'Press ENTER to play again';
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
     blit();
   });
@@ -271,7 +271,7 @@ function resize() {
 };
 
 function newGame(keyEvent) {
-  if (keyEvent.which == 32) {
+  if (keyEvent.which == 13) {
     startGame();
   }
 };
