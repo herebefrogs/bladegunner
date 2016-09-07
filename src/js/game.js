@@ -91,48 +91,48 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
 
-function createEntity(type) {
-  var attrs = {
-    direction: [DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT][randomInt(0, 3)],
+function createEntity(type, direction, x, y) {
+  var size = data[type].size
+
+  direction = direction !== undefined ? direction : [DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT][randomInt(0, 3)];
+  x = x !== undefined ? x : randomInt(0, WIDTH - size);
+  y = y !== undefined ? y : randomInt(0, HEIGHT - size);
+
+  return {
+    direction: direction,
     type: type,
-    size: data[type].size
+    size: size,
+    x: x,
+    y: y
   };
-  attrs.facingRight = attrs.direction === DIRECTION_RIGHT;
-  attrs.x = randomInt(0, WIDTH - attrs.size);
-  attrs.y = randomInt(0, HEIGHT - attrs.size);
-  return attrs;
 }
 
 function createHero() {
-  var attrs = createEntity('hero');
-  attrs.direction = 0;
-  return attrs;
-}
-
-function entityImmobile(entity) {
-  return !entity.direction
-         || entity.direction === (DIRECTION_LEFT|DIRECTION_RIGHT)
-         || entity.direction === (DIRECTION_UP|DIRECTION_DOWN);
+  return createEntity('hero', 0);
 }
 
 function createBullet(entity) {
-  var attrs = createEntity('bullet');
-  // direction the entity is facing or if immobile, the direction it is facing
-  attrs.direction = entity.direction;
-  if (entityImmobile(attrs)) {
-    attrs.direction = entity.facingRight ? DIRECTION_RIGHT : DIRECTION_LEFT;
-  }
-  attrs.x = entity.x;
-  attrs.y = entity.y;
+  var direction = entity.direction ? entity.direction : DIRECTION_RIGHT;
+  var bullet = createEntity('bullet', direction, entity.x, entity.y);
+
   // place bullet outside of entity bounding box (to avoid immediate entity kill)
-  if (attrs.direction & DIRECTION_LEFT) { attrs.x -= attrs.size; }
-  if (attrs.direction & DIRECTION_RIGHT) { attrs.x += entity.size; }
-  if (attrs.direction & DIRECTION_UP) { attrs.y -= attrs.size; }
-  if (attrs.direction & DIRECTION_DOWN) { attrs.y += entity.size; }
+  if (bullet.direction & DIRECTION_LEFT) { bullet.x -= bullet.size; }
+  if (bullet.direction & DIRECTION_RIGHT) { bullet.x += entity.size; }
+  if (bullet.direction & DIRECTION_UP) { bullet.y -= bullet.size; }
+  if (bullet.direction & DIRECTION_DOWN) { bullet.y += entity.size; }
   // center bullet halfway along the sprite if no diagonal motion
-  if (!(attrs.direction & DIRECTION_LEFT) && !(attrs.direction & DIRECTION_RIGHT)) { attrs.x += (entity.size - attrs.size) / 2; }
-  if (!(attrs.direction & DIRECTION_UP) && !(attrs.direction & DIRECTION_DOWN)) { attrs.y += (entity.size - attrs.size) / 2; }
-  return attrs;
+  if (!(bullet.direction & DIRECTION_LEFT) && !(bullet.direction & DIRECTION_RIGHT)) { bullet.x += (entity.size - bullet.size) / 2; }
+  if (!(bullet.direction & DIRECTION_UP) && !(bullet.direction & DIRECTION_DOWN)) { bullet.y += (entity.size - bullet.size) / 2; }
+  return bullet;
+}
+
+function getDirection(entity) {
+  var direction = 0;
+  if (entity.moveLeft && !entity.moveRight) { direction |= DIRECTION_LEFT; }
+  if (entity.moveRight && !entity.moveLeft) { direction |= DIRECTION_RIGHT; }
+  if (entity.moveUp && !entity.moveDown) { direction |= DIRECTION_UP; }
+  if (entity.moveDown && !entity.moveUp) { direction |= DIRECTION_DOWN; }
+  return direction;
 }
 
 function moveEntity(entity, elapsed) {
@@ -279,20 +279,20 @@ function newGame(keyEvent) {
 function keyPressed(keyEvent) {
   if (keyEvent.which == 32) {
     hero.shoot = true;
-    bullets.push(createBullet(hero));
+    hero.createBullet = true;
   }
-  if (keyEvent.which == 37) { hero.direction |= DIRECTION_LEFT; hero.facingRight = false; }
-  if (keyEvent.which == 38) { hero.direction |= DIRECTION_UP; }
-  if (keyEvent.which == 39) { hero.direction |= DIRECTION_RIGHT; hero.facingRight = true; }
-  if (keyEvent.which == 40) { hero.direction |= DIRECTION_DOWN; }
+  if (keyEvent.which == 37) { hero.moveLeft = true; }
+  if (keyEvent.which == 38) { hero.moveUp = true; }
+  if (keyEvent.which == 39) { hero.moveRight = true; }
+  if (keyEvent.which == 40) { hero.moveDown = true; }
 }
 
 function keyReleased(keyEvent) {
   if (keyEvent.which == 32) { hero.shoot = false; }
-  if (keyEvent.which == 37) { hero.direction ^= DIRECTION_LEFT; }
-  if (keyEvent.which == 38) { hero.direction ^= DIRECTION_UP; }
-  if (keyEvent.which == 39) { hero.direction ^= DIRECTION_RIGHT; }
-  if (keyEvent.which == 40) { hero.direction ^= DIRECTION_DOWN; }
+  if (keyEvent.which == 37) { hero.moveLeft = false; }
+  if (keyEvent.which == 38) { hero.moveUp = false; }
+  if (keyEvent.which == 39) { hero.moveRight = false; }
+  if (keyEvent.which == 40) { hero.moveDown = false; }
 }
 
 function startGame() {
@@ -370,12 +370,21 @@ function loop() {
 };
 
 function update(elapsedTime) {
+  hero.direction = getDirection(hero);
+
   entities.forEach(function(entity) {
     moveEntity(entity, elapsedTime);
     containEntity(entity);
+
+    if (entity.createBullet) {
+      entity.createBullet = false;
+      bullets.push(createBullet(entity));
+    }
   });
+
   bullets.forEach(function(bullet, i) {
     moveEntity(bullet, elapsedTime);
+
     var n;
     if (containBullet(bullet) || (n = collideEntity(bullet))) {
       bullets.splice(i, 1);
@@ -384,6 +393,7 @@ function update(elapsedTime) {
       }
     };
   });
+
   checkEndGame();
 };
 
