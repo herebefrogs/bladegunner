@@ -171,30 +171,24 @@ function containEntity(entity) {
   }
 }
 
-function containBullet(bullet, i) {
+function containBullet(bullet) {
   // bullet out of screen?
-  var discard = (bullet.x <= 0 || bullet.x + bullet.size >= WIDTH
-                 || bullet.y <= data.bg.size || bullet.y >= HEIGHT - bullet.size);
+  return bullet.x <= 0 || bullet.x + bullet.size >= WIDTH
+         || bullet.y <= data.bg.size || bullet.y >= HEIGHT - bullet.size;
+}
 
-  if (!discard) {
-    // cache some collision math
-    var bullet_up = bullet.y + bullet.size;
-    var bullet_right = bullet.x + bullet.size;
+function collideEntity(bullet) {
+  // cache some collision math
+  var bullet_up = bullet.y + bullet.size;
+  var bullet_right = bullet.x + bullet.size;
 
-    for (var n in entities) {
-      var entity = entities[n];
-      // bullet hit entity?
-      discard = bullet_up > entity.y && bullet.x < entity.x + entity.size
-                && bullet.y < entity.y + entity.size && bullet_right > entity.x;
-      if (discard) {
-        updateScore(entities.splice(n, 1)[0]);
-        break;
-      }
+  for (var n in entities) {
+    var entity = entities[n];
+    // bullet hit entity?
+    if (bullet_up > entity.y && bullet.x < entity.x + entity.size
+        && bullet.y < entity.y + entity.size && bullet_right > entity.x) {
+      return n;
     }
-  }
-
-  if (discard) {
-    bullets.splice(i, 1);
   }
 }
 
@@ -382,7 +376,13 @@ function update(elapsedTime) {
   });
   bullets.forEach(function(bullet, i) {
     moveEntity(bullet, elapsedTime);
-    containBullet(bullet, i);
+    var n;
+    if (containBullet(bullet) || (n = collideEntity(bullet))) {
+      bullets.splice(i, 1);
+      if (n !== undefined) {
+        updateScore(entities.splice(n, 1)[0]);
+      }
+    };
   });
   checkEndGame();
 };
