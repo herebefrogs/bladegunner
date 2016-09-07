@@ -109,10 +109,19 @@ function createHero() {
   return attrs;
 }
 
+function entityImmobile(entity) {
+  return !entity.direction
+         || entity.direction === (DIRECTION_LEFT|DIRECTION_RIGHT)
+         || entity.direction === (DIRECTION_UP|DIRECTION_DOWN);
+}
+
 function createBullet(entity) {
   var attrs = createEntity('bullet');
   // direction the entity is facing or if immobile, the direction it is facing
-  attrs.direction = entity.direction || (entity.facingRight ? DIRECTION_RIGHT : DIRECTION_LEFT);
+  attrs.direction = entity.direction;
+  if (entityImmobile(attrs)) {
+    attrs.direction = entity.facingRight ? DIRECTION_RIGHT : DIRECTION_LEFT;
+  }
   attrs.x = entity.x;
   attrs.y = entity.y;
   // place bullet outside of entity bounding box (to avoid immediate entity kill)
