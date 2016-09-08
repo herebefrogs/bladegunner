@@ -80,12 +80,15 @@ var bg,
     DIRECTION_RIGHT = 2,
     DIRECTION_DOWN = 4,
     DIRECTION_LEFT = 8,
-    MAX_ANDROIDS = 5,
+    MAX_ANDROIDS = 1//5,
     MIN_ANDROIDS = 1,
     MAX_BYSTANDERS = 50,
     MIN_BYSTANDERS = 25,
     DIRECTION_CHANGE_FREQ = 2; // seconds before next direction change
     DIRECTION_CHANGE_VAR = 1.5; // +/- seconds around next direction change
+    GLITCH_CHANGE_FREQ = 10; // max seconds before next glitch mode change
+    GLITCH_CHANGE_VAR = 5; // max seconds before next glitch mode change
+    SHOOT_FREQ = 0.25; // seconds between bullets for androids in glitch mode
     HEIGHT = 153,
     WIDTH = 198;
 
@@ -106,7 +109,9 @@ function createEntity(type, direction, x, y) {
 
   return {
     direction: direction,
-    lastDirectionChange: 0,
+    lastOrient: 0,
+    lastGlitch: 0,
+    lastBullet: 0,
     type: type,
     size: size,
     x: x,
@@ -133,7 +138,7 @@ function createBullet(entity) {
   return bullet;
 }
 
-function orientEntity(entity, elapsedTime) {
+function orientEntity(entity, elapsed) {
   if (entity.type === 'hero') {
     var direction = 0;
     if (entity.moveLeft && !entity.moveRight) { direction |= DIRECTION_LEFT; }
@@ -142,12 +147,32 @@ function orientEntity(entity, elapsedTime) {
     if (entity.moveDown && !entity.moveUp) { direction |= DIRECTION_DOWN; }
     entity.direction = direction;
   } else {
-    entity.lastDirectionChange += elapsedTime;
-    if ((DIRECTION_CHANGE_FREQ + Math.random() * DIRECTION_CHANGE_VAR) < entity.lastDirectionChange) {
-      entity.lastDirectionChange = 0;
+    // TODO change direction faster if glitching
+    if ((DIRECTION_CHANGE_FREQ + Math.random() * DIRECTION_CHANGE_VAR) < (entity.lastOrient += elapsed)) {
+      entity.lastOrient = 0;
+      // TODO allow for diagonal move (but avoid immobility)
       entity.direction = randomDirection();
     }
   }
+}
+
+function glitchEntity(entity, elapsed) {
+  if (entity.type === 'android') {
+    if ((GLITCH_CHANGE_FREQ + Math.random() * GLITCH_CHANGE_VAR) < (entity.lastGlitch += elapsed)) {
+      entity.lastGlitch = 0;
+      entity.glitch = !entity.glitch;
+      entity.shoot = !entity.shoot;
+    }
+  }
+
+  if (entity.glitch) {
+    if ((entity.lastBullet += elapsed) > SHOOT_FREQ) {
+       entity.lastBullet = 0;
+       entity.createBullet = true;
+    }
+  }
+
+  // TODO should the hero be subject to the glitch too?
 }
 
 function moveEntity(entity, elapsed) {
@@ -386,6 +411,7 @@ function loop() {
 
 function update(elapsedTime) {
   entities.forEach(function(entity) {
+    glitchEntity(entity, elapsedTime);
     orientEntity(entity, elapsedTime);
     moveEntity(entity, elapsedTime);
     containEntity(entity);
