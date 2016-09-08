@@ -15,6 +15,7 @@ var bg,
     nb_retires,
     nb_casualties,
     hero_dead,
+    win,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlklEQVR42s2XQU7EMAxFfRQ2CLEG5hZs4CLskVjNLTgBQlwChLgBV4AtJwg4HVeO5ydNOx4XS5ZS943760nchGhn6ZGSdTIWxuTg5/uer8WQBC83V0mPlzKJrkfm4fQWMhzXfCHo+WYzqTqMYUC8BkUyBfT69pGdx/atDmH0NWJkXCRilRayZbaJ5DctRnM9eYo340kqbgXVGC0IMbUq1phsOoiApbGlDKWf74R8LWaAphpaIEPS7M5f0gjweCnTaozCVBujnlxWtfy/kQyhVcNuJ3oUU0Aa1EvyUMbyNSZMkDS+LkE22cnFfXbUL6KYbHwDjefEpq57maE/fJ0l5KswOQCald5aRjIjZHeDKFEPYxsjYmxjhIL+RYXG/7BxEohkhlMAAtUkKxjDTeb5c+k3U8z+Gck8tHqOAisD3pfrXWNsMVhQrdSBjOuu0WXHuL17Sh5ODat2Y2ScTG8FrM8RJN8m+xnijVy3KBGEHjJHkDxYXAQcXVCteqtVSGJIkOsc8qiQi3nNIXdBHqvMTdCx+9Ac+wUmrkaWOYmdHgAAAABJRU5ErkJggg==',
@@ -238,13 +239,15 @@ function updateScore(entity) {
 
 function checkEndGame() {
   if (hero_dead || nb_bystanders === nb_casualties) {
-    endGame(false);
+    win = false;
+    endGame();
   } else if (nb_retires === nb_androids) {
-    endGame(true);
+    win = true;
+    endGame();
   }
 }
 
-function endGame(win) {
+function endGame() {
   if (!win) {
     nb_androids = 0;
   }
@@ -256,7 +259,13 @@ function endGame(win) {
   removeEventListener('keyup', keyReleased);
 
   addEventListener('keydown', newGame);
+  addEventListener('resize', renderEndGame);
 
+  renderEndGame();
+}
+
+
+function renderEndGame() {
   requestAnimationFrame(function() {
     ctx.fillStyle = GREY;
     ctx.fillRect(0, data.bg.size, WIDTH, HEIGHT - data.bg.size);
@@ -339,6 +348,7 @@ function keyReleased(keyEvent) {
 
 function startGame() {
   removeEventListener('keydown', newGame);
+  removeEventListener('resize', renderEndGame);
 
   createBackground();
 
