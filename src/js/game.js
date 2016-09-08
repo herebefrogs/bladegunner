@@ -80,8 +80,6 @@ var bg,
     DIRECTION_RIGHT = 2,
     DIRECTION_DOWN = 4,
     DIRECTION_LEFT = 8,
-    MAX_ANDROIDS = 1//5,
-    MIN_ANDROIDS = 1,
     MAX_BYSTANDERS = 50,
     MIN_BYSTANDERS = 25,
     DIRECTION_CHANGE_FREQ = 2; // seconds before next direction change
@@ -247,6 +245,10 @@ function checkEndGame() {
 }
 
 function endGame(win) {
+  if (!win) {
+    nb_androids = 0;
+  }
+
   cancelAnimationFrame(requestId);
   requestId = undefined;
 
@@ -350,8 +352,7 @@ function startGame() {
   // hero
   entities.push(hero = createHero());
   // glitchy androids
-  nb_androids = randomInt(MIN_ANDROIDS, MAX_ANDROIDS);
-  for (var n = nb_androids; n > 0; n--) {
+  for (var n = ++nb_androids; n > 0; n--) {
     entities.push(createEntity('android'));
   }
   // bystanders
@@ -395,6 +396,8 @@ function init() {
   var img = new Image();
   img.src = data.tileset;
   data.tileset = img;
+
+  nb_androids = 0;
 
   startGame();
 };
