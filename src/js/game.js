@@ -82,8 +82,10 @@ var bg,
     DIRECTION_LEFT = 8,
     MAX_ANDROIDS = 5,
     MIN_ANDROIDS = 1,
-    MAX_BYSTANDERS = 75,
+    MAX_BYSTANDERS = 50,
     MIN_BYSTANDERS = 25,
+    DIRECTION_CHANGE_FREQ = 2; // seconds before next direction change
+    DIRECTION_CHANGE_VAR = 1.5; // +/- seconds around next direction change
     HEIGHT = 153,
     WIDTH = 198;
 
@@ -91,15 +93,20 @@ function randomInt(min, max) {
   return Math.floor(Math.random() * (max + 1 - min) + min);
 }
 
+function randomDirection() {
+  return [DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT][randomInt(0, 3)];
+}
+
 function createEntity(type, direction, x, y) {
   var size = data[type].size
 
-  direction = direction !== undefined ? direction : [DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT][randomInt(0, 3)];
+  direction = direction !== undefined ? direction : randomDirection();
   x = x !== undefined ? x : randomInt(0, WIDTH - size);
   y = y !== undefined ? y : randomInt(0, HEIGHT - size);
 
   return {
     direction: direction,
+    lastDirectionChange: 0,
     type: type,
     size: size,
     x: x,
@@ -126,13 +133,21 @@ function createBullet(entity) {
   return bullet;
 }
 
-function getDirection(entity) {
-  var direction = 0;
-  if (entity.moveLeft && !entity.moveRight) { direction |= DIRECTION_LEFT; }
-  if (entity.moveRight && !entity.moveLeft) { direction |= DIRECTION_RIGHT; }
-  if (entity.moveUp && !entity.moveDown) { direction |= DIRECTION_UP; }
-  if (entity.moveDown && !entity.moveUp) { direction |= DIRECTION_DOWN; }
-  return direction;
+function orientEntity(entity, elapsedTime) {
+  if (entity.type === 'hero') {
+    var direction = 0;
+    if (entity.moveLeft && !entity.moveRight) { direction |= DIRECTION_LEFT; }
+    if (entity.moveRight && !entity.moveLeft) { direction |= DIRECTION_RIGHT; }
+    if (entity.moveUp && !entity.moveDown) { direction |= DIRECTION_UP; }
+    if (entity.moveDown && !entity.moveUp) { direction |= DIRECTION_DOWN; }
+    entity.direction = direction;
+  } else {
+    entity.lastDirectionChange += elapsedTime;
+    if ((DIRECTION_CHANGE_FREQ + Math.random() * DIRECTION_CHANGE_VAR) < entity.lastDirectionChange) {
+      entity.lastDirectionChange = 0;
+      entity.direction = randomDirection();
+    }
+  }
 }
 
 function moveEntity(entity, elapsed) {
@@ -370,9 +385,8 @@ function loop() {
 };
 
 function update(elapsedTime) {
-  hero.direction = getDirection(hero);
-
   entities.forEach(function(entity) {
+    orientEntity(entity, elapsedTime);
     moveEntity(entity, elapsedTime);
     containEntity(entity);
 
