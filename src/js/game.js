@@ -259,7 +259,7 @@ function endGame(win) {
     ctx.fillStyle = GREY;
     ctx.fillRect(0, data.bg.size, WIDTH, HEIGHT - data.bg.size);
     ctx.fillStyle = WHITE;
-    var text = 'You ' + (win ? 'win!' : 'loose!');
+    var text = 'You ' + (win ? 'win' : 'died') + '!';
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
     text = 'Press ENTER to play again';
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
