@@ -243,12 +243,13 @@ function containBullet(bullet) {
          || bullet.y <= data.bg.size || bullet.y >= HEIGHT - bullet.size;
 }
 
-function collideEntity(bullet) {
+function collideEntity(bullet, entities) {
   // cache some collision math
   for (var n in entities) {
     var entity = entities[n];
     // bullet mostly within entity?
-    if (bullet.x + COLLISION_TOLERANCE >= entity.x
+    if (bullet !== entity
+       && bullet.x + COLLISION_TOLERANCE >= entity.x
        && bullet.x + bullet.size - COLLISION_TOLERANCE <= entity.x + entity.size
        && bullet.y + COLLISION_TOLERANCE >= entity.y
        && bullet.y + bullet.size - COLLISION_TOLERANCE <= entity.y + entity.size) {
@@ -479,12 +480,16 @@ function update(elapsedTime) {
     frameEntity(bullet, elapsedTime);
     moveEntity(bullet, elapsedTime);
 
-    var n;
-    if (containBullet(bullet) || (n = collideEntity(bullet))) {
-      bullets.splice(i, 1);
-      if (n !== undefined) {
-        updateScore(entities.splice(n, 1)[0]);
+    var e, b;
+    if (containBullet(bullet)
+        || (e = collideEntity(bullet, entities))
+        || (b = collideEntity(bullet, bullets))) {
+      if (e !== undefined) {
+        updateScore(entities.splice(e, 1)[0]);
+      } else if (b !== undefined) {
+        bullets.splice(b, 1);
       }
+      bullets.splice(i, 1);
     };
   });
 
