@@ -125,6 +125,7 @@ function createEntity(type, direction, x, y) {
     lastGlitch: 0,
     lastBullet: 0,
     type: type,
+    variant: randomInt(0, data[type].sprites.length - 1),
     size: size,
     x: x,
     y: y
@@ -170,7 +171,7 @@ function orientEntity(entity, elapsed) {
 }
 
 function getSprites(entity) {
-  return data[entity.type].sprites[0][entity.action];
+  return data[entity.type].sprites[entity.variant][entity.action];
 }
 
 function frameEntity(entity, elapsed) {
