@@ -297,7 +297,9 @@ function renderEndGame() {
     ctx.fillStyle = GREY;
     ctx.fillRect(0, data.bg.size, WIDTH, HEIGHT - data.bg.size);
     ctx.fillStyle = WHITE;
-    var text = 'You ' + (win ? 'win' : 'died') + '!';
+    var text = hero_dead ? 'Oh no, you died!'
+               : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
+               : 'Cool, you disabled all glitchy androids!'
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
     text = 'Press ENTER to play again';
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
@@ -319,7 +321,7 @@ function renderScore() {
   ctx.fillStyle = RED;
   ctx.fillText(TITLE, 0, 0);
   ctx.fillStyle = WHITE;
-  ctx.fillText('kills: ' + nb_retires, WIDTH / 3, 0);
+  ctx.fillText('androids: ' + nb_retires + '/' + nb_androids, WIDTH / 3, 0);
   var casualties = 'casulaties: ' + nb_casualties;
   ctx.fillText(casualties, WIDTH - ctx.measureText(casualties).width, 0);
 }
