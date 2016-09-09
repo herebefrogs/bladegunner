@@ -10,7 +10,7 @@ var bg,
     requestId,
     entities = [],
     bullets = [],
-    nb_androids,
+    nb_androids = 0,
     nb_bystanders,
     nb_retires,
     nb_casualties,
@@ -427,12 +427,9 @@ function init() {
 
   // load base64 encoded tileset
   var img = new Image();
+  img.addEventListener('load', startGame);
   img.src = data.tileset;
   data.tileset = img;
-
-  nb_androids = 0;
-
-  startGame();
 };
 
 function loop() {
