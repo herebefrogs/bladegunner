@@ -306,8 +306,10 @@ function renderEndGame() {
 
 function renderEntity(entity) {
   var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
-  ctx.drawImage(data.tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
+  var tileset = (entity.direction & DIRECTION_LEFT) ? data.flippedTileset : data.tileset;
+  ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
                               Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
+
 }
 
 function renderScore() {
@@ -427,10 +429,27 @@ function init() {
 
   // load base64 encoded tileset
   var img = new Image();
-  img.addEventListener('load', startGame);
+  img.addEventListener('load', function() {
+    data.tileset = img;
+    data.flippedTileset = flipTileset(data.tileset);
+    startGame()
+  });
   img.src = data.tileset;
-  data.tileset = img;
 };
+
+function flipTileset(img) {
+  var flipped = document.createElement('canvas');
+  flipped.width = img.width;
+  flipped.height = img.height;
+  var ctx = flipped.getContext('2d');
+  var size = img.width / 4;
+  for (var n = 1; n <= 4; n++) {
+    ctx.setTransform(-1, 0, 0, 1, n * size, 0);
+    ctx.drawImage(img, (n-1) * size, 0, size, img.height, 0, 0, size, img.height)
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  return flipped;
+}
 
 function loop() {
   currentTime = Date.now();
