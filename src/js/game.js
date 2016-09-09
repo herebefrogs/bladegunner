@@ -93,11 +93,12 @@ var bg,
     DIRECTION_LEFT = 8,
     MAX_BYSTANDERS = 50,
     MIN_BYSTANDERS = 25,
-    DIRECTION_CHANGE_FREQ = 2; // seconds before next direction change
-    DIRECTION_CHANGE_VAR = 1.5; // +/- seconds around next direction change
-    GLITCH_CHANGE_FREQ = 10; // max seconds before next glitch mode change
-    GLITCH_CHANGE_VAR = 5; // max seconds before next glitch mode change
-    SHOOT_FREQ = 0.25; // seconds between bullets for androids in glitch mode
+    DIRECTION_CHANGE_FREQ = 2, // seconds before next direction change
+    DIRECTION_CHANGE_VAR = 1.5, // +/- seconds around next direction change
+    GLITCH_CHANGE_FREQ = 10, // max seconds before next glitch mode change
+    GLITCH_CHANGE_VAR = 5, // max seconds before next glitch mode change
+    SHOOT_FREQ = 0.25, // seconds between bullets for androids in glitch mode
+    COLLISION_TOLERANCE = 2, // number of non-overlapping pixels in collision test
     HEIGHT = 153,
     WIDTH = 198;
 
@@ -244,14 +245,13 @@ function containBullet(bullet) {
 
 function collideEntity(bullet) {
   // cache some collision math
-  var bullet_up = bullet.y + bullet.size;
-  var bullet_right = bullet.x + bullet.size;
-
   for (var n in entities) {
     var entity = entities[n];
-    // bullet hit entity?
-    if (bullet_up > entity.y && bullet.x < entity.x + entity.size
-        && bullet.y < entity.y + entity.size && bullet_right > entity.x) {
+    // bullet mostly within entity?
+    if (bullet.x + COLLISION_TOLERANCE >= entity.x
+       && bullet.x + bullet.size - COLLISION_TOLERANCE <= entity.x + entity.size
+       && bullet.y + COLLISION_TOLERANCE >= entity.y
+       && bullet.y + bullet.size - COLLISION_TOLERANCE <= entity.y + entity.size) {
       return n;
     }
   }
