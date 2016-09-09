@@ -30,14 +30,16 @@ var bg,
         speed: 60,
         size: 5,
         sprites: [
-          { x: 18, y: 27 },
-          { x: 23, y: 27 }
+          {
+            trace: [ {x: 18, y: 27 }, { x: 23, y: 27 } ]
+          }
         ]
       },
       hero: {
         speed: 30, // pixel per second
         size: 9,
         sprites: [
+          // blue bullet
           {
             walk: [ {x: 0, y: 0}, {x: 9, y: 0}],
             shoot: [ {x: 18, y: 0}, {x: 27, y: 0}]
@@ -48,9 +50,11 @@ var bg,
         size: 9,
         speed: 20, // pixels per second
         sprites: [
+          // yellow priest
           {
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}]
           },
+          // black trenchcoat
           {
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}]
           }
@@ -60,10 +64,12 @@ var bg,
         size: 9,
         speed: 25, // pixels per second
         sprites: [
+          // black trenchcoat
           {
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}],
             shoot: [ {x: 18, y: 9}, {x: 27, y: 9}]
           },
+          // yellow priest
           {
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}],
             shoot: [ {x: 18, y: 18}, {x: 27, y: 18}]
@@ -76,7 +82,11 @@ var bg,
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
-    ANIM_INTERVAL = 0.25; // seconds between animation frames
+    FRAME_INTERVAL = { // seconds between action animation frame
+      walk: 0.2,
+      shoot: 0.1,
+      trace: 0.1
+    },
     DIRECTION_UP = 1,
     DIRECTION_RIGHT = 2,
     DIRECTION_DOWN = 4,
@@ -107,7 +117,10 @@ function createEntity(type, direction, x, y) {
   y = y !== undefined ? y : randomInt(0, HEIGHT - size);
 
   return {
+    action: 'walk',
     direction: direction,
+    frame: 0,
+    lastFrame: 0,
     lastOrient: 0,
     lastGlitch: 0,
     lastBullet: 0,
@@ -125,6 +138,7 @@ function createHero() {
 function createBullet(entity) {
   var direction = entity.direction ? entity.direction : DIRECTION_RIGHT;
   var bullet = createEntity('bullet', direction, entity.x, entity.y);
+  bullet.action = 'trace';
 
   // place bullet outside of entity bounding box (to avoid immediate entity kill)
   if (bullet.direction & DIRECTION_LEFT) { bullet.x -= bullet.size; }
@@ -155,12 +169,23 @@ function orientEntity(entity, elapsed) {
   }
 }
 
+function getSprites(entity) {
+  return data[entity.type].sprites[0][entity.action];
+}
+
+function frameEntity(entity, elapsed) {
+  if ((entity.lastFrame += elapsed) > FRAME_INTERVAL[entity.action]) {
+    entity.lastFrame = 0;
+    entity.frame = ++entity.frame % getSprites(entity).length;
+  }
+}
+
 function glitchEntity(entity, elapsed) {
   if (entity.type === 'android') {
     if ((GLITCH_CHANGE_FREQ + Math.random() * GLITCH_CHANGE_VAR) < (entity.lastGlitch += elapsed)) {
       entity.lastGlitch = 0;
       entity.glitch = !entity.glitch;
-      entity.shoot = !entity.shoot;
+      entity.action = entity.glitch ? 'shoot' : 'walk';
     }
   }
 
@@ -279,10 +304,7 @@ function renderEndGame() {
 }
 
 function renderEntity(entity) {
-  var sprite = data[entity.type].sprites[0];
-  if (entity.type !== 'bullet') {
-    sprite = sprite[entity.shoot ? 'shoot' : 'walk'][0];
-  }
+  var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
   ctx.drawImage(data.tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
                               Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 }
@@ -329,7 +351,7 @@ function newGame(keyEvent) {
 
 function keyPressed(keyEvent) {
   if (keyEvent.which == 32) {
-    hero.shoot = true;
+    hero.action = 'shoot';
     hero.createBullet = true;
   }
   if (keyEvent.which == 37) { hero.moveLeft = true; }
@@ -339,7 +361,7 @@ function keyPressed(keyEvent) {
 }
 
 function keyReleased(keyEvent) {
-  if (keyEvent.which == 32) { hero.shoot = false; }
+  if (keyEvent.which == 32) { hero.action = 'walk'; }
   if (keyEvent.which == 37) { hero.moveLeft = false; }
   if (keyEvent.which == 38) { hero.moveUp = false; }
   if (keyEvent.which == 39) { hero.moveRight = false; }
@@ -427,6 +449,7 @@ function update(elapsedTime) {
     glitchEntity(entity, elapsedTime);
     orientEntity(entity, elapsedTime);
     moveEntity(entity, elapsedTime);
+    frameEntity(entity, elapsedTime);
     containEntity(entity);
 
     if (entity.createBullet) {
@@ -436,6 +459,7 @@ function update(elapsedTime) {
   });
 
   bullets.forEach(function(bullet, i) {
+    frameEntity(bullet, elapsedTime);
     moveEntity(bullet, elapsedTime);
 
     var n;
