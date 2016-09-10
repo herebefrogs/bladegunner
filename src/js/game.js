@@ -119,7 +119,8 @@ function createEntity(type, direction, x, y) {
 
   return {
     action: 'walk',
-    direction: direction,
+    direction: direction, // for motion
+    lastDirection: direction ? direction : DIRECTION_RIGHT, // for shooting
     frame: 0,
     lastFrame: 0,
     lastOrient: 0,
@@ -138,18 +139,17 @@ function createHero() {
 }
 
 function createBullet(entity) {
-  var direction = entity.direction ? entity.direction : DIRECTION_RIGHT;
-  var bullet = createEntity('bullet', direction, entity.x, entity.y);
+  var bullet = createEntity('bullet', entity.lastDirection, entity.x, entity.y);
   bullet.action = 'trace';
 
   // place bullet outside of entity bounding box (to avoid immediate entity kill)
-  if (bullet.direction & DIRECTION_LEFT) { bullet.x -= bullet.size; }
-  if (bullet.direction & DIRECTION_RIGHT) { bullet.x += entity.size; }
-  if (bullet.direction & DIRECTION_UP) { bullet.y -= bullet.size; }
-  if (bullet.direction & DIRECTION_DOWN) { bullet.y += entity.size; }
+  if (bullet.lastDirection & DIRECTION_LEFT) { bullet.x -= bullet.size; }
+  if (bullet.lastDirection & DIRECTION_RIGHT) { bullet.x += entity.size; }
+  if (bullet.lastDirection & DIRECTION_UP) { bullet.y -= bullet.size; }
+  if (bullet.lastDirection & DIRECTION_DOWN) { bullet.y += entity.size; }
   // center bullet halfway along the sprite if no diagonal motion
-  if (!(bullet.direction & DIRECTION_LEFT) && !(bullet.direction & DIRECTION_RIGHT)) { bullet.x += (entity.size - bullet.size) / 2; }
-  if (!(bullet.direction & DIRECTION_UP) && !(bullet.direction & DIRECTION_DOWN)) { bullet.y += (entity.size - bullet.size) / 2; }
+  if (!(bullet.lastDirection & DIRECTION_LEFT) && !(bullet.lastDirection & DIRECTION_RIGHT)) { bullet.x += (entity.size - bullet.size) / 2; }
+  if (!(bullet.lastDirection & DIRECTION_UP) && !(bullet.lastDirection & DIRECTION_DOWN)) { bullet.y += (entity.size - bullet.size) / 2; }
   return bullet;
 }
 
@@ -160,13 +160,14 @@ function orientEntity(entity, elapsed) {
     if (entity.moveRight && !entity.moveLeft) { direction |= DIRECTION_RIGHT; }
     if (entity.moveUp && !entity.moveDown) { direction |= DIRECTION_UP; }
     if (entity.moveDown && !entity.moveUp) { direction |= DIRECTION_DOWN; }
+    entity.lastDirection = direction ? direction : entity.lastDirection;
     entity.direction = direction;
   } else {
-    // TODO change direction faster if glitching
     if ((DIRECTION_CHANGE_FREQ + Math.random() * DIRECTION_CHANGE_VAR) < (entity.lastOrient += elapsed)) {
       entity.lastOrient = 0;
       // TODO allow for diagonal move (but avoid immobility)
       entity.direction = randomDirection();
+      entity.lastDirection = entity.direction;
     }
   }
 }
@@ -216,11 +217,13 @@ function containEntity(entity) {
     entity.x = 0;
     if (entity !== hero) {
       entity.direction = (entity.direction ^ DIRECTION_LEFT) | DIRECTION_RIGHT;
+      entity.lastDirection = entity.direction;
     }
   } else if (entity.x + entity.size >= WIDTH) {
     entity.x = WIDTH - entity.size;
     if (entity !== hero) {
       entity.direction = (entity.direction ^ DIRECTION_RIGHT) | DIRECTION_LEFT;
+      entity.lastDirection = entity.direction;
     }
   }
   // skip one tile vertically for score
@@ -228,11 +231,13 @@ function containEntity(entity) {
     entity.y = data.bg.size;
     if (entity !== hero) {
       entity.direction = (entity.direction ^ DIRECTION_UP) | DIRECTION_DOWN;
+      entity.lastDirection = entity.direction;
     }
   } else if (entity.y >= HEIGHT - entity.size) {
     entity.y = HEIGHT - entity.size;
     if (entity !== hero) {
       entity.direction = (entity.direction ^ DIRECTION_DOWN) | DIRECTION_UP;
+      entity.lastDirection = entity.direction;
     }
   }
 }
@@ -309,7 +314,7 @@ function renderEndGame() {
 
 function renderEntity(entity) {
   var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
-  var tileset = (entity.direction & DIRECTION_LEFT) ? data.flippedTileset : data.tileset;
+  var tileset = (entity.lastDirection & DIRECTION_LEFT) ? data.flippedTileset : data.tileset;
   ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
                               Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 
