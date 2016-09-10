@@ -18,7 +18,7 @@ var bg,
     win,
     hero,
     data = {
-      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlklEQVR42s2XQU7EMAxFfRQ2CLEG5hZs4CLskVjNLTgBQlwChLgBV4AtJwg4HVeO5ydNOx4XS5ZS943760nchGhn6ZGSdTIWxuTg5/uer8WQBC83V0mPlzKJrkfm4fQWMhzXfCHo+WYzqTqMYUC8BkUyBfT69pGdx/atDmH0NWJkXCRilRayZbaJ5DctRnM9eYo340kqbgXVGC0IMbUq1phsOoiApbGlDKWf74R8LWaAphpaIEPS7M5f0gjweCnTaozCVBujnlxWtfy/kQyhVcNuJ3oUU0Aa1EvyUMbyNSZMkDS+LkE22cnFfXbUL6KYbHwDjefEpq57maE/fJ0l5KswOQCald5aRjIjZHeDKFEPYxsjYmxjhIL+RYXG/7BxEohkhlMAAtUkKxjDTeb5c+k3U8z+Gck8tHqOAisD3pfrXWNsMVhQrdSBjOuu0WXHuL17Sh5ODat2Y2ScTG8FrM8RJN8m+xnijVy3KBGEHjJHkDxYXAQcXVCteqtVSGJIkOsc8qiQi3nNIXdBHqvMTdCx+9Ac+wUmrkaWOYmdHgAAAABJRU5ErkJggg==',
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlElEQVR42s2XwU3FMAyGMwoXhDgDbwsusAh3JE5swQQIsQQIsQErwJUJAk7rynF/JyWNHCxZSt3vuX/9EjcJYbb4EKL2oMyNScGPt5WPYgIHzw8XUY5bmRguF+bu+BoyFJd8Jujp6lBV7cYQwG5BnkwGvby+J6exfqs9jLxGDI+zRKRSQ7rMOhH/psRIbkue7M1okrJrQRYjBSHGqqLFJJNBBLTGWpkQv78i8lHMBNUamiMTuNmdPscFoHErU2qMzJiNUU4urZr/X08moFVDrie6F5NBEpRLci+jeYtxE8SNb5Mgnezo7DY56hdeTDK6gcZ/idWutzJTf/g8iciHMCkAmpXcWnoyC6R3gyjRFkY3RsToxggF/YsKLf9h4STgyUynAASKSZYxiqvm+XXuNzVmfUZSDzXPUWBlwPt8PTfGEoMFWaV2ZLruGrvsGO9vHmMPDw0GuzQlk1sB7S2C+BtlfhZmhjZ4K4YFoYe0COIHsVuiugmyqjesQhwrCeoyh3pWaJf1nkPdBPVcZbsFjepDyH4ASgFGlkfhZVYAAAAASUVORK5CYII=',
       bg: {
         size: 9,
         sprites: [
@@ -31,7 +31,7 @@ var bg,
         size: 5,
         sprites: [
           {
-            trace: [ {x: 18, y: 27 }, { x: 23, y: 27 } ]
+            trace: [ {x: 20, y: 27 }, { x: 29, y: 27 } ]
           }
         ]
       },
