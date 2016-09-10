@@ -97,6 +97,7 @@ var bg,
     DIRECTION_CHANGE_VAR = 1.5, // +/- seconds around next direction change
     GLITCH_CHANGE_FREQ = 10, // max seconds before next glitch mode change
     GLITCH_CHANGE_VAR = 5, // max seconds before next glitch mode change
+    GLITCH_TRIGGER_DISTANCE = 40, // distance in pixels below which hero will make an android glitch
     SHOOT_FREQ = 0.25, // seconds between bullets for androids in glitch mode
     COLLISION_TOLERANCE = 2, // number of non-overlapping pixels in collision test
     HEIGHT = 153,
@@ -108,6 +109,10 @@ function randomInt(min, max) {
 
 function randomDirection() {
   return [DIRECTION_UP, DIRECTION_RIGHT, DIRECTION_DOWN, DIRECTION_LEFT][randomInt(0, 3)];
+}
+
+function distanceBetween(entity, hero) {
+  return Math.sqrt(Math.pow(entity.x - hero.x, 2) + Math.pow(entity.y - hero.y, 2));
 }
 
 function createEntity(type, direction, x, y) {
@@ -136,6 +141,16 @@ function createEntity(type, direction, x, y) {
 
 function createHero() {
   return createEntity('hero', 0);
+}
+
+function createAndroid() {
+  var android = createEntity('android');
+  // ensure android doesn't start right next to hero, which would make it glitch immediately
+  while (distanceBetween(android, hero) < GLITCH_TRIGGER_DISTANCE * 1.5) {
+    android.x = randomInt(0, WIDTH - android.size);
+    android.y = randomInt(0, HEIGHT - android.size);
+  }
+  return android;
 }
 
 function createBullet(entity) {
@@ -185,7 +200,9 @@ function frameEntity(entity, elapsed) {
 
 function glitchEntity(entity, elapsed) {
   if (entity.type === 'android') {
-    if ((GLITCH_CHANGE_FREQ + Math.random() * GLITCH_CHANGE_VAR) < (entity.lastGlitch += elapsed)) {
+    // hero too close to android in disguise or it's time for android to glitch anyway
+    if ((!entity.glitch && distanceBetween(entity, hero) < GLITCH_TRIGGER_DISTANCE)
+        || ((GLITCH_CHANGE_FREQ + Math.random() * GLITCH_CHANGE_VAR) < (entity.lastGlitch += elapsed))) {
       entity.lastGlitch = 0;
       entity.glitch = !entity.glitch;
       entity.action = entity.glitch ? 'shoot' : 'walk';
@@ -396,7 +413,7 @@ function startGame() {
   entities.push(hero = createHero());
   // glitchy androids
   for (var n = ++nb_androids; n > 0; n--) {
-    entities.push(createEntity('android'));
+    entities.push(createAndroid());
   }
   // bystanders
   nb_bystanders = randomInt(MIN_BYSTANDERS, MAX_BYSTANDERS);
