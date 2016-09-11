@@ -4,6 +4,7 @@ var bg,
     ctx,
     viewport,
     viewport_ctx,
+    scaleToFit,
     currentTime,
     lastTime,
     elapsedTime,
@@ -79,7 +80,7 @@ var bg,
     }
     TITLE = 'BLADEGUNNER',
     FONT_SIZE = 8, // in pixels
-    FONT = FONT_SIZE + 'px Courier',
+    FONT_FAMILY = 'Courier',
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
@@ -313,21 +314,24 @@ function endGame() {
 
 function renderEndGame() {
   requestAnimationFrame(function() {
-    ctx.fillStyle = GREY;
-    ctx.fillRect(0, data.bg.size, WIDTH, HEIGHT - data.bg.size);
-    ctx.fillStyle = WHITE;
+    viewport_ctx.fillStyle = GREY;
+    viewport_ctx.fillRect(0, 0, viewport.width, viewport.height);
+    viewport_ctx.fillStyle = RED;
+    viewport_ctx.fillText(TITLE, 0, 0);
+    viewport_ctx.fillStyle = WHITE;
+    var font_size = Math.floor(FONT_SIZE * scaleToFit * 1.2);
     var text = hero_dead ? 'Oh no, you died!'
                : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
-               : 'Cool, you disabled all glitchy androids!'
-    ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
+               : 'You retired ' + nb_androids + ' glitchy androids';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 2 - font_size);
     text = 'Press ENTER to play again' + (win ? 'st' : '');
-    ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3);
     if (win) {
+      text = 'with ' + nb_casualties + ' casualt' + (nb_casualties > 1 ? 'ies' : 'y') + '!';
+      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 2);
       text = 'one more android';
-      var measure = ctx.measureText(text);
-      ctx.fillText(text, (WIDTH - measure.width) / 2, (HEIGHT * 2 / 3) + FONT_SIZE * 1.2);
+      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 + font_size);
     }
-    blit();
   });
 }
 
@@ -339,15 +343,15 @@ function renderEntity(entity) {
 
 }
 
-function renderScore() {
-  ctx.fillStyle = GREY;
-  ctx.fillRect(0, 0, WIDTH, data.bg.size);
-  ctx.fillStyle = RED;
-  ctx.fillText(TITLE, 0, 0);
-  ctx.fillStyle = WHITE;
-  ctx.fillText('androids: ' + nb_retires + '/' + nb_androids, WIDTH / 3, 0);
+function renderScore(canvas, context) {
+  context.fillStyle = GREY;
+  context.fillRect(0, 0, canvas.width, data.bg.size * scaleToFit);
+  context.fillStyle = RED;
+  context.fillText(TITLE, 0, 0);
+  context.fillStyle = WHITE;
+  context.fillText('androids: ' + nb_retires + '/' + nb_androids, canvas.width / 3, 0);
   var casualties = 'casulaties: ' + nb_casualties;
-  ctx.fillText(casualties, WIDTH - ctx.measureText(casualties).width, 0);
+  context.fillText(casualties, canvas.width - context.measureText(casualties).width, 0);
 }
 
 function createBackground() {
@@ -362,7 +366,7 @@ function createBackground() {
 }
 
 function resize() {
-  var scaleToFit = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
+  scaleToFit = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
   viewport.width = WIDTH * scaleToFit;
   viewport.height = HEIGHT * scaleToFit;
 
@@ -371,6 +375,9 @@ function resize() {
   viewport_ctx.webkitImageSmoothingEnabled = false;
   viewport_ctx.msImageSmoothingEnabled = false;
   viewport_ctx.imageSmoothingEnabled = false;
+
+  viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
+  viewport_ctx.textBaseline = 'top';
 };
 
 function newGame(keyEvent) {
@@ -440,7 +447,6 @@ function init() {
   // visible canvas, in window dimensions
   viewport = document.querySelector('canvas');
   viewport_ctx = viewport.getContext('2d');
-
   resize();
   addEventListener('resize', resize);
 
@@ -449,8 +455,6 @@ function init() {
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
-  ctx.font = FONT;
-  ctx.textBaseline = 'top';
 
   bg = document.createElement('canvas')
   bg.width = WIDTH;
@@ -536,9 +540,10 @@ function render() {
 
   entities.forEach(renderEntity);
   bullets.forEach(renderEntity);
-  renderScore();
 
   blit();
+
+  renderScore(viewport, viewport_ctx);
 };
 
 addEventListener('load', init);
