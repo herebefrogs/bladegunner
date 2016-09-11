@@ -19,7 +19,7 @@ var bg,
     win = true,
     hero,
     data = {
-      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlElEQVR42s2XwU3FMAyGMwoXhDgDbwsusAh3JE5swQQIsQQIsQErwJUJAk7rynF/JyWNHCxZSt3vuX/9EjcJYbb4EKL2oMyNScGPt5WPYgIHzw8XUY5bmRguF+bu+BoyFJd8Jujp6lBV7cYQwG5BnkwGvby+J6exfqs9jLxGDI+zRKRSQ7rMOhH/psRIbkue7M1okrJrQRYjBSHGqqLFJJNBBLTGWpkQv78i8lHMBNUamiMTuNmdPscFoHErU2qMzJiNUU4urZr/X08moFVDrie6F5NBEpRLci+jeYtxE8SNb5Mgnezo7DY56hdeTDK6gcZ/idWutzJTf/g8iciHMCkAmpXcWnoyC6R3gyjRFkY3RsToxggF/YsKLf9h4STgyUynAASKSZYxiqvm+XXuNzVmfUZSDzXPUWBlwPt8PTfGEoMFWaV2ZLruGrvsGO9vHmMPDw0GuzQlk1sB7S2C+BtlfhZmhjZ4K4YFoYe0COIHsVuiugmyqjesQhwrCeoyh3pWaJf1nkPdBPVcZbsFjepDyH4ASgFGlkfhZVYAAAAASUVORK5CYII=',
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABkElEQVR42s2XQU4FIQyGexQ3xrg28RZu9CLuTVx5i3cCY94lnjHewCvo1hPUwFCEzl9mBAKSNIHO98o/fdABotD4QKyNVBvGeOfH28pmMZQ4U4BrGaabyDye30HG+VM+E/Rye72pehjjADELGslk0On13Zvr67dqYdIxYqSfBXIqNaTTrAPJb0pMyu2Jk71ZWKTetCCLSQUhxsqixcTFb/RbfXUMf38xslnMAm0VtIEMSbG7PHIEXL+WKRVGYUqFMS4uoJonMOtdE3YOI9EDGLK2MnyzGgbwkBkmKCl8uwRlwc6uHrwZ9WIUQxQerPp/8W2N9zKL7M8LRjaF8Q5QrNKj5UgmQvo0iALtYXRhRIwujFDQv8hQ/A8LN4GRzHILQGCyyDJGcZtxDr/1ZotZ35HUpOY9CuwM+FzGoTCWGCzISvVApvepsf3E+HT/zD2MKhqs0i5YehTQViNIvlHmZyEw7oC3YkQQmqRGkEwkZonqJsjK3rQMia8kqMsa6pmhptZ7DXUT1HOXNQuaVYdQ+wHZQPSLBfp8rQAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
         sprites: [
@@ -78,7 +78,7 @@ var bg,
         ]
       },
     }
-    TITLE = 'BLADEGUNNER',
+    TITLE = 'BLADE GUNNER',
     FONT_SIZE = 8, // in pixels
     FONT_FAMILY = 'Courier',
     GREY = '#343635',
@@ -319,19 +319,60 @@ function renderEndGame() {
     viewport_ctx.fillStyle = RED;
     viewport_ctx.fillText(TITLE, 0, 0);
     viewport_ctx.fillStyle = WHITE;
-    var font_size = Math.floor(FONT_SIZE * scaleToFit * 1.2);
     var text = hero_dead ? 'Oh no, you died!'
                : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
-               : 'You retired ' + nb_androids + ' glitchy androids';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 2 - font_size);
+               : 'You retired ' + nb_androids + ' glitchy android' + (nb_androids > 1 ? 's' : '');
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3);
     text = 'Press ENTER to play again' + (win ? 'st' : '');
     viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3);
     if (win) {
+      var font_size = Math.floor(FONT_SIZE * scaleToFit * 1.2);
       text = 'with ' + nb_casualties + ' casualt' + (nb_casualties > 1 ? 'ies' : 'y') + '!';
-      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 2);
+      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 + font_size);
       text = 'one more android';
       viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 + font_size);
     }
+  });
+}
+
+function renderGameTitle() {
+  requestAnimationFrame(function() {
+    viewport_ctx.fillStyle = GREY;
+    viewport_ctx.fillRect(0, 0, viewport.width, viewport.height);
+
+    var font_size = Math.floor(3 * FONT_SIZE * scaleToFit);
+    viewport_ctx.font = font_size + 'px ' + FONT_FAMILY;
+    viewport_ctx.fillStyle = RED;
+    viewport_ctx.fillText(TITLE, (viewport.width - viewport_ctx.measureText(TITLE).width) / 2, 0);
+
+    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
+    viewport_ctx.fillStyle = WHITE;
+    var line_height = Math.floor(1.2 * FONT_SIZE * scaleToFit);
+    var text = 'Retire glitchy androids';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 - line_height);
+    text = 'before they inflict casualties.';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3);
+    text = 'Avoid casualties yourself.';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 + line_height);
+    viewport_ctx.drawImage(data.tileset, data.hero.sprites[0].walk[0].x, data.hero.sprites[0].walk[0].y, data.hero.size, data.hero.size,
+                                         0, viewport.height / 3 - line_height / 2, data.hero.size * scaleToFit * 1.5, data.hero.size * scaleToFit * 1.5);
+    viewport_ctx.drawImage(data.flippedTileset, data.android.sprites[0].shoot[0].x, data.android.sprites[0].shoot[0].y, data.android.size, data.android.size,
+                                         viewport.width - data.android.size * scaleToFit * 2, viewport.height / 3 - line_height * 1.5, data.android.size * scaleToFit * 1.5, data.android.size * scaleToFit * 1.5);
+    viewport_ctx.drawImage(data.flippedTileset, data.android.sprites[1].shoot[0].x, data.android.sprites[1].shoot[0].y, data.android.size, data.android.size,
+                                         viewport.width - data.android.size * scaleToFit * 1.5, viewport.height / 3 + line_height * 0.5, data.android.size * scaleToFit * 1.5, data.android.size * scaleToFit * 1.5);
+
+    text = 'Move: arrow keys     Shoot: space bar';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 - line_height);
+
+    text = 'Press ENTER to start';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height - 3 * line_height);
+
+    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit / 2) + 'px ' + FONT_FAMILY;
+    text = 'Created by Jerome Lecomte for JS13KGAMES 2016';
+    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height - line_height * 2 / 3);
+
+    // restore font
+    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
   });
 }
 
@@ -339,7 +380,7 @@ function renderEntity(entity) {
   var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
   var tileset = (entity.lastDirection & DIRECTION_LEFT) ? data.flippedTileset : data.tileset;
   ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
-                              Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
+                         Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 
 }
 
@@ -349,7 +390,7 @@ function renderScore(canvas, context) {
   context.fillStyle = RED;
   context.fillText(TITLE, 0, 0);
   context.fillStyle = WHITE;
-  context.fillText('androids: ' + nb_retires + '/' + nb_androids, canvas.width / 3, 0);
+  context.fillText('android' + (nb_androids > 1 ? 's' : '') + ': ' + nb_retires + '/' + nb_androids, canvas.width / 3, 0);
   var casualties = 'casulaties: ' + nb_casualties;
   context.fillText(casualties, canvas.width - context.measureText(casualties).width, 0);
 }
@@ -407,6 +448,7 @@ function keyReleased(keyEvent) {
 
 function startGame() {
   removeEventListener('keydown', newGame);
+  removeEventListener('resize', renderGameTitle);
   removeEventListener('resize', renderEndGame);
 
   createBackground();
@@ -466,7 +508,9 @@ function init() {
   img.addEventListener('load', function() {
     data.tileset = img;
     data.flippedTileset = flipTileset(data.tileset);
-    startGame()
+    renderGameTitle();
+    addEventListener('keydown', newGame);
+    addEventListener('resize', renderGameTitle);
   });
   img.src = data.tileset;
 };
