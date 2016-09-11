@@ -30,6 +30,9 @@ var bg,
       bullet: {
         speed: 60,
         size: 5,
+        sounds: {
+          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5]
+        },
         sprites: [
           {
             trace: [ {x: 20, y: 27 }, { x: 29, y: 27 } ]
@@ -39,6 +42,11 @@ var bg,
       hero: {
         speed: 30, // pixel per second
         size: 9,
+        sounds: {
+          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5],
+          // TODO i don't like this gun sound
+          shoot: [1,0.0321,0.279,,0.141,0.8295,0.0316,-0.667,0.0529,0.0565,,0.033,0.0096,0.7662,-0.5725,,-0.0479,0.0398,0.976,0.0089,,,-0.0338,0.5]
+        },
         sprites: [
           // blue bullet
           {
@@ -50,6 +58,9 @@ var bg,
       bystander: {
         size: 9,
         speed: 20, // pixels per second
+        sounds: {
+          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5]
+        },
         sprites: [
           // yellow priest
           {
@@ -64,6 +75,12 @@ var bg,
       android: {
         size: 9,
         speed: 25, // pixels per second
+        sounds: {
+          //hit: [0,,0.0274,0.0352,0.2127,0.3728,,0.4773,0.0388,,,,,0.441,0.0164,0.4501,,,1,,0.0247,,,0.5], // single blip
+          hit: [0,,0.2246,,0.2099,0.458,,0.4934,,,,,,0.0222,,0.5192,,,1,,,,,0.5], // double blip
+          // TODO i don't like this gun sound either
+          shoot: [2,,0.1582,,0.2433,0.7687,0.0631,-0.4606,,,,,,0.1545,0.1034,,,,1,,,,,0.5]
+        },
         sprites: [
           // black trenchcoat
           {
@@ -153,6 +170,12 @@ function createAndroid() {
     android.y = randomInt(0, HEIGHT - android.size);
   }
   return android;
+}
+
+function playSound(type, sound) {
+  var player = new Audio();
+  player.src = jsfxr(data[type].sounds[sound]);
+  player.play();
 }
 
 function createBullet(entity) {
@@ -286,6 +309,7 @@ function updateScore(entity) {
   if (entity.type === 'bystander') { nb_casualties++ }
   if (entity.type === 'android') { nb_retires++; }
   if (entity.type === 'hero') { hero_dead = true; }
+  playSound(entity.type, 'hit');
 }
 
 function checkEndGame() {
@@ -550,6 +574,7 @@ function update(elapsedTime) {
     if (entity.createBullet) {
       entity.createBullet = false;
       bullets.push(createBullet(entity));
+      playSound(entity.type, 'shoot');
     }
   });
 

@@ -11,7 +11,7 @@ var fs = require('fs'),
     webserver = require('gulp-webserver'),
     uglify = require('gulp-uglify'),
     zip = require('gulp-zip'),
-    exclude_min = [];
+    exclude_min = ['js/jsfxr.min.js'];
     config = { js: [] };
 
 
@@ -54,7 +54,7 @@ gulp.task('initbuild', ['clean'], function() {
   $('script').each(function() {
     src = $(this).attr('src');
     if (exclude_min.indexOf(src) === -1) {
-      js.push('src/' + src);
+      js.push('./src/' + src);
     }
   });
 
@@ -83,14 +83,14 @@ gulp.task('addjs', ['jsmin'], function() {
 
     for (i = 0; i < exclude_min.length; i += 1) {
       console.log(exclude_min[i])
-      extra_js += fs.readFileSync(exclude_min[i], 'utf-8', function(e, data) {
+      extra_js += fs.readFileSync('./src/' + exclude_min[i], 'utf-8', function(e, data) {
         return data;
       });
     }
     console.log(extra_js.length, 'OK', exclude_min);
 
     var stream = gulp.src('src/index.html')
-      .pipe(replace(/<.*?script.*?>.*?<\/.*?script.*?>/igm, '<script>'+extra_js+' '+js+'</script>'))
+      .pipe(replace(/<script.*>(.|\n)*<\/script>/i, '<script>'+extra_js+' '+js+'</script>'))
       .pipe(htmlmin({collapseWhitespace: true}))
       .pipe(gulp.dest('./build'));
 
