@@ -15,7 +15,7 @@ var bg,
     nb_retires,
     nb_casualties,
     hero_dead,
-    win,
+    win = true,
     hero,
     data = {
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABlElEQVR42s2XwU3FMAyGMwoXhDgDbwsusAh3JE5swQQIsQQIsQErwJUJAk7rynF/JyWNHCxZSt3vuX/9EjcJYbb4EKL2oMyNScGPt5WPYgIHzw8XUY5bmRguF+bu+BoyFJd8Jujp6lBV7cYQwG5BnkwGvby+J6exfqs9jLxGDI+zRKRSQ7rMOhH/psRIbkue7M1okrJrQRYjBSHGqqLFJJNBBLTGWpkQv78i8lHMBNUamiMTuNmdPscFoHErU2qMzJiNUU4urZr/X08moFVDrie6F5NBEpRLci+jeYtxE8SNb5Mgnezo7DY56hdeTDK6gcZ/idWutzJTf/g8iciHMCkAmpXcWnoyC6R3gyjRFkY3RsToxggF/YsKLf9h4STgyUynAASKSZYxiqvm+XXuNzVmfUZSDzXPUWBlwPt8PTfGEoMFWaV2ZLruGrvsGO9vHmMPDw0GuzQlk1sB7S2C+BtlfhZmhjZ4K4YFoYe0COIHsVuiugmyqjesQhwrCeoyh3pWaJf1nkPdBPVcZbsFjepDyH4ASgFGlkfhZVYAAAAASUVORK5CYII=',
@@ -78,7 +78,8 @@ var bg,
       },
     }
     TITLE = 'BLADEGUNNER',
-    FONT = '8px Courier',
+    FONT_SIZE = 8, // in pixels
+    FONT = FONT_SIZE + 'px Courier',
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
@@ -297,10 +298,6 @@ function checkEndGame() {
 }
 
 function endGame() {
-  if (!win) {
-    nb_androids = 0;
-  }
-
   cancelAnimationFrame(requestId);
   requestId = undefined;
 
@@ -323,8 +320,13 @@ function renderEndGame() {
                : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
                : 'Cool, you disabled all glitchy androids!'
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT / 2);
-    text = 'Press ENTER to play again';
+    text = 'Press ENTER to play again' + (win ? 'st' : '');
     ctx.fillText(text, (WIDTH - ctx.measureText(text).width) / 2, HEIGHT * 2 / 3);
+    if (win) {
+      text = 'one more android';
+      var measure = ctx.measureText(text);
+      ctx.fillText(text, (WIDTH - measure.width) / 2, (HEIGHT * 2 / 3) + FONT_SIZE * 1.2);
+    }
     blit();
   });
 }
@@ -402,6 +404,9 @@ function startGame() {
 
   createBackground();
 
+  if (win) {
+    nb_androids++;
+  }
   nb_retires = 0;
   nb_casualties = 0;
   hero_dead = false;
@@ -412,7 +417,7 @@ function startGame() {
   // hero
   entities.push(hero = createHero());
   // glitchy androids
-  for (var n = ++nb_androids; n > 0; n--) {
+  for (var n = nb_androids; n > 0; n--) {
     entities.push(createAndroid());
   }
   // bystanders
