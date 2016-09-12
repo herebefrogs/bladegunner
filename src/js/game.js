@@ -19,7 +19,7 @@ var bg,
     win = true,
     hero,
     data = {
-      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACQAAAAkCAYAAADhAJiYAAABkElEQVR42s2XQU4FIQyGexQ3xrg28RZu9CLuTVx5i3cCY94lnjHewCvo1hPUwFCEzl9mBAKSNIHO98o/fdABotD4QKyNVBvGeOfH28pmMZQ4U4BrGaabyDye30HG+VM+E/Rye72pehjjADELGslk0On13Zvr67dqYdIxYqSfBXIqNaTTrAPJb0pMyu2Jk71ZWKTetCCLSQUhxsqixcTFb/RbfXUMf38xslnMAm0VtIEMSbG7PHIEXL+WKRVGYUqFMS4uoJonMOtdE3YOI9EDGLK2MnyzGgbwkBkmKCl8uwRlwc6uHrwZ9WIUQxQerPp/8W2N9zKL7M8LRjaF8Q5QrNKj5UgmQvo0iALtYXRhRIwujFDQv8hQ/A8LN4GRzHILQGCyyDJGcZtxDr/1ZotZ35HUpOY9CuwM+FzGoTCWGCzISvVApvepsf3E+HT/zD2MKhqs0i5YehTQViNIvlHmZyEw7oC3YkQQmqRGkEwkZonqJsjK3rQMia8kqMsa6pmhptZ7DXUT1HOXNQuaVYdQ+wHZQPSLBfp8rQAAAABJRU5ErkJggg==',
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAA2CAYAAABTCxDCAAACoklEQVR42t2awU3FMAyGOwoXhDgDbwsusAh3JE5swQQIsQQIsQErwJUJghzq4ufaid3kuRWVLKV5X9I/aWI3yRuG8UoPQ+I2sCuU+f5K3OaVfLzNbDVGEDwX/VeQVpKWMmm4nJi742uRgXzKu0U/Xe2qrY9kqqKhEjStokhGE6yKfnl9zwZp3jstDL2XGEy7hga2nFfEXyl/GJYpMZSz1FPq6Uk8bf04sbJx0RpDRUuM9jY0xtTTyCrp1rxFDBcpira0bmvML2RxQ5GMYYjkgqfPaaoE0kuZUnBBpjW4TBNCaH2KZkzeQ/IGo0dIUsMOzZiCC3M9vKLUgxF4kdmUaBI8mkSrwo/ObrMp/jSEMQeYsfAs7cmr3VsZU3DJP3yeJMlWY2q9nQsJDp8ug0IZy5jGiviqRHqYheHBRWJ4cHGJnl5PofW9mG49PT2ssEIOZUxDAwpJlZGJsccwbsYIgtAf1xifaCKUClP3KYQZv/cb58fgUmJcwUVqtdiLUYwxGvZcvcSsXO5vHlMPGyIveCD9TOTmEY3fElJoxgv8M1qzaEmIRzQIhZUMmiQ8BxQIJKMtFu4Vrb2FTfc05kmipavUANqQ1XqauyccMlQ4Z3DIuIT3GtOriO7hPUJFH9JPH2RM8xmtze5IxhTGtYpoZZGM6fsDC9GtWL5pHsmYehrGHe4Zs/3jRQxMLGT4q0eGCnfv5cFnIUYxrfWhjGVo0NALhq6O74O0MDRdYtyiobXSA+grlR5mYfCMpcS4t8XY9hTfsmpm+JiuMZ7Vy2ZXLmqeYKsxnvVh8RwkknGduZQO6yOZ/3m6BTfnu4sZAHlrMSbRubWlk6RGZtoWqzA+0UplFkH4amtMD9GicLpi0Y5+I5mq26P/OqBpT17t3srUgssPJQbtEa3j0uAAAAAASUVORK5CYII=',
       bg: {
         size: 9,
         sprites: [
@@ -35,7 +35,10 @@ var bg,
         },
         sprites: [
           {
-            trace: [ {x: 20, y: 27 }, { x: 29, y: 27 } ]
+            trace: [ {x: 18, y: 27 }, { x: 22, y: 31 } ]
+          },
+          {
+            trace: [ {x: 27, y: 27 }, { x: 32, y: 31 } ]
           }
         ]
       },
@@ -69,6 +72,14 @@ var bg,
           // black trenchcoat
           {
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}]
+          },
+          // blue uniform
+          {
+            walk: [ {x: 0, y: 36}, {x: 9, y: 36}]
+          // },
+          // // white coverall
+          // {
+          //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
           }
         ]
       },
@@ -91,6 +102,16 @@ var bg,
           {
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}],
             shoot: [ {x: 18, y: 18}, {x: 27, y: 18}]
+          },
+          // blue uniform
+          {
+            walk: [ {x: 0, y: 36}, {x: 9, y: 36}],
+            shoot: [ {x: 18, y: 36}, {x: 27, y: 36}]
+          // },
+          // // white coverall
+          // {
+          //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
+          //   shoot: [ {x: 18, y: 45}, {x: 27, y: 45}]
           }
         ]
       },
@@ -134,12 +155,13 @@ function distanceBetween(entity, hero) {
   return Math.sqrt(Math.pow(entity.x - hero.x, 2) + Math.pow(entity.y - hero.y, 2));
 }
 
-function createEntity(type, direction, x, y) {
+function createEntity(type, direction, x, y, variant) {
   var size = data[type].size
 
-  direction = direction !== undefined ? direction : randomDirection();
-  x = x !== undefined ? x : randomInt(0, WIDTH - size);
-  y = y !== undefined ? y : randomInt(0, HEIGHT - size);
+  if (direction === undefined) { direction = randomDirection(); }
+  if (x === undefined) { x = randomInt(0, WIDTH - size); }
+  if (y === undefined) { y = randomInt(0, HEIGHT - size); }
+  if (variant === undefined) { variant = randomInt(0, data[type].sprites.length - 1); }
 
   return {
     action: 'walk',
@@ -151,7 +173,7 @@ function createEntity(type, direction, x, y) {
     lastGlitch: 0,
     lastBullet: 0,
     type: type,
-    variant: randomInt(0, data[type].sprites.length - 1),
+    variant: variant,
     size: size,
     x: x,
     y: y
@@ -179,7 +201,7 @@ function playSound(type, sound) {
 }
 
 function createBullet(entity) {
-  var bullet = createEntity('bullet', entity.lastDirection, entity.x, entity.y);
+  var bullet = createEntity('bullet', entity.lastDirection, entity.x, entity.y, entity.type === 'hero' ? 0 : 1);
   bullet.action = 'trace';
 
   // place bullet outside of entity bounding box (to avoid immediate entity kill)
@@ -402,7 +424,7 @@ function renderGameTitle() {
 
 function renderEntity(entity) {
   var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
-  var tileset = (entity.lastDirection & DIRECTION_LEFT) ? data.flippedTileset : data.tileset;
+  var tileset = (entity.type !== 'bullet' && (entity.lastDirection & DIRECTION_LEFT)) ? data.flippedTileset : data.tileset;
   ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
                          Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
 
@@ -544,8 +566,8 @@ function flipTileset(img) {
   flipped.width = img.width;
   flipped.height = img.height;
   var ctx = flipped.getContext('2d');
-  var size = img.width / 4;
-  for (var n = 1; n <= 4; n++) {
+  var size = img.width / 5;
+  for (var n = 1; n <= 5; n++) {
     ctx.setTransform(-1, 0, 0, 1, n * size, 0);
     ctx.drawImage(img, (n-1) * size, 0, size, img.height, 0, 0, size, img.height)
   }
