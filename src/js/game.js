@@ -15,7 +15,6 @@ var bg,
     nb_bystanders,
     nb_retires,
     nb_casualties,
-    hero_dead,
     win = true,
     hero,
     data = {
@@ -35,9 +34,11 @@ var bg,
         },
         sprites: [
           {
+            die: [ {x: 18, y: 31 } ],
             trace: [ {x: 18, y: 27 }, { x: 22, y: 31 } ]
           },
           {
+            die: [ {x: 27, y: 31 } ],
             trace: [ {x: 27, y: 27 }, { x: 32, y: 31 } ]
           }
         ]
@@ -53,6 +54,7 @@ var bg,
         sprites: [
           // blue bullet
           {
+            die: [ {x: 36, y: 0} ],
             walk: [ {x: 0, y: 0}, {x: 9, y: 0}],
             shoot: [ {x: 18, y: 0}, {x: 27, y: 0}]
           }
@@ -67,18 +69,22 @@ var bg,
         sprites: [
           // yellow priest
           {
+            die: [ {x: 36, y: 18} ],
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}]
           },
           // black trenchcoat
           {
+            die: [ {x: 36, y: 9} ],
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}]
           },
           // blue uniform
           {
+            die: [ {x: 36, y: 36} ],
             walk: [ {x: 0, y: 36}, {x: 9, y: 36}]
           // },
           // // white coverall
           // {
+          //   die: [ {x: 36, y: 46} ],
           //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
           }
         ]
@@ -95,21 +101,25 @@ var bg,
         sprites: [
           // black trenchcoat
           {
+            die: [ {x: 36, y: 9} ],
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}],
             shoot: [ {x: 18, y: 9}, {x: 27, y: 9}]
           },
           // yellow priest
           {
+            die: [ {x: 36, y: 18} ],
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}],
             shoot: [ {x: 18, y: 18}, {x: 27, y: 18}]
           },
           // blue uniform
           {
+            die: [ {x: 36, y: 36} ],
             walk: [ {x: 0, y: 36}, {x: 9, y: 36}],
             shoot: [ {x: 18, y: 36}, {x: 27, y: 36}]
           // },
           // // white coverall
           // {
+          //   die: [ {x: 36, y: 45} ],
           //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
           //   shoot: [ {x: 18, y: 45}, {x: 27, y: 45}]
           }
@@ -322,7 +332,7 @@ function collideEntity(bullet, entities) {
        && bullet.x + bullet.size - COLLISION_TOLERANCE <= entity.x + entity.size
        && bullet.y + COLLISION_TOLERANCE >= entity.y
        && bullet.y + bullet.size - COLLISION_TOLERANCE <= entity.y + entity.size) {
-      return n;
+      return entity;
     }
   }
 }
@@ -330,12 +340,11 @@ function collideEntity(bullet, entities) {
 function updateScore(entity) {
   if (entity.type === 'bystander') { nb_casualties++ }
   if (entity.type === 'android') { nb_retires++; }
-  if (entity.type === 'hero') { hero_dead = true; }
-  playSound(entity.type, 'hit');
+  if (entity.type === 'hero') { hero.dead = true; }
 }
 
 function checkEndGame() {
-  if (hero_dead || nb_bystanders === nb_casualties) {
+  if (hero.dead || nb_bystanders === nb_casualties) {
     win = false;
     endGame();
   } else if (nb_retires === nb_androids) {
@@ -365,7 +374,7 @@ function renderEndGame() {
     viewport_ctx.fillStyle = RED;
     viewport_ctx.fillText(TITLE, 0, 0);
     viewport_ctx.fillStyle = WHITE;
-    var text = hero_dead ? 'Oh no, you died!'
+    var text = hero.dead ? 'Oh no, you died!'
                : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
                : 'You retired ' + nb_androids + ' glitchy android' + (nb_androids > 1 ? 's' : '');
     viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3);
@@ -423,7 +432,8 @@ function renderGameTitle() {
 }
 
 function renderEntity(entity) {
-  var sprite = getSprites(entity)[(entity.type === 'hero') && (entity.direction === 0) ? 0 : entity.frame];
+  var frame = ((entity.type === 'hero') && (entity.direction === 0)) || entity.action === 'die' ? 0 : entity.frame;
+  var sprite = getSprites(entity)[frame];
   var tileset = (entity.type !== 'bullet' && (entity.lastDirection & DIRECTION_LEFT)) ? data.flippedTileset : data.tileset;
   ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
                          Math.floor(entity.x), Math.floor(entity.y), entity.size, entity.size);
@@ -504,7 +514,6 @@ function startGame() {
   }
   nb_retires = 0;
   nb_casualties = 0;
-  hero_dead = false;
 
   entities = [];
   bullets = [];
@@ -586,35 +595,44 @@ function loop() {
 };
 
 function update(elapsedTime) {
-  entities.forEach(function(entity) {
-    glitchEntity(entity, elapsedTime);
-    orientEntity(entity, elapsedTime);
-    moveEntity(entity, elapsedTime);
-    frameEntity(entity, elapsedTime);
-    containEntity(entity);
+  entities.forEach(function(entity, i) {
+    if (entity.action === 'die') {
+      updateScore(entities.splice(i, 1)[0]);
+    } else {
+      glitchEntity(entity, elapsedTime);
+      orientEntity(entity, elapsedTime);
+      moveEntity(entity, elapsedTime);
+      frameEntity(entity, elapsedTime);
+      containEntity(entity);
 
-    if (entity.createBullet) {
-      entity.createBullet = false;
-      bullets.push(createBullet(entity));
-      playSound(entity.type, 'shoot');
+      if (entity.createBullet) {
+        entity.createBullet = false;
+        bullets.push(createBullet(entity));
+        playSound(entity.type, 'shoot');
+      }
     }
   });
 
   bullets.forEach(function(bullet, i) {
-    frameEntity(bullet, elapsedTime);
-    moveEntity(bullet, elapsedTime);
+    if (bullet.action === 'die') {
+      bullets.splice(i, 1)
+    } else {
+      frameEntity(bullet, elapsedTime);
+      moveEntity(bullet, elapsedTime);
 
-    var e, b;
-    if (containBullet(bullet)
-        || (e = collideEntity(bullet, entities))
-        || (b = collideEntity(bullet, bullets))) {
-      if (e !== undefined) {
-        updateScore(entities.splice(e, 1)[0]);
-      } else if (b !== undefined) {
-        bullets.splice(b, 1);
+      var e, b;
+      if (containBullet(bullet)
+          || (e = collideEntity(bullet, entities))
+          || (b = collideEntity(bullet, bullets))) {
+        bullet.action = 'die';
+        if (e) {
+          e.action = 'die';
+          playSound(e.type, 'hit');
+        } else if (b) {
+          b.action = 'die';
+        }
       }
-      bullets.splice(i, 1);
-    };
+    }
   });
 
   checkEndGame();
