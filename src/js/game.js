@@ -149,7 +149,7 @@ var bg,
     GLITCH_CHANGE_VAR = 5, // max seconds before next glitch mode change
     GLITCH_TRIGGER_DISTANCE = 40, // distance in pixels below which hero will make an android glitch
     SHOOT_FREQ = 0.25, // seconds between bullets for androids in glitch mode
-    COLLISION_TOLERANCE = 2, // number of non-overlapping pixels in collision test
+    COLLISION_TOLERANCE = 3, // number of non-overlapping pixels in collision test
     HEIGHT = 153,
     WIDTH = 198;
 
@@ -322,14 +322,15 @@ function containBullet(bullet) {
          || bullet.y <= data.bg.size || bullet.y >= HEIGHT - bullet.size;
 }
 
-function collideEntity(bullet, entities) {
+function hitEntity(bullet, entities) {
   // cache some collision math
   for (var n in entities) {
     var entity = entities[n];
     // bullet mostly within entity?
     if (bullet !== entity
        && bullet.x + COLLISION_TOLERANCE >= entity.x
-       && bullet.x + bullet.size - COLLISION_TOLERANCE <= entity.x + entity.size
+       // -1 because most sprites are 8x9 and don't use the 9th column
+       && bullet.x + bullet.size - COLLISION_TOLERANCE - 1 <= entity.x + entity.size
        && bullet.y + COLLISION_TOLERANCE >= entity.y
        && bullet.y + bullet.size - COLLISION_TOLERANCE <= entity.y + entity.size) {
       return entity;
@@ -622,8 +623,8 @@ function update(elapsedTime) {
 
       var e, b;
       if (containBullet(bullet)
-          || (e = collideEntity(bullet, entities))
-          || (b = collideEntity(bullet, bullets))) {
+          || (e = hitEntity(bullet, entities))
+          || (b = hitEntity(bullet, bullets))) {
         bullet.action = 'die';
         if (e) {
           e.action = 'die';
