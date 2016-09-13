@@ -30,7 +30,7 @@ var bg,
         speed: 60,
         size: 5,
         sounds: {
-          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5]
+          hit: jsfxr([3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5])
         },
         sprites: [
           {
@@ -47,9 +47,9 @@ var bg,
         speed: 30, // pixel per second
         size: 9,
         sounds: {
-          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5],
+          hit: jsfxr([3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5]),
           // TODO i don't like this gun sound
-          shoot: [1,0.0321,0.279,,0.141,0.8295,0.0316,-0.667,0.0529,0.0565,,0.033,0.0096,0.7662,-0.5725,,-0.0479,0.0398,0.976,0.0089,,,-0.0338,0.5]
+          shoot: jsfxr([1,0.0321,0.279,,0.141,0.8295,0.0316,-0.667,0.0529,0.0565,,0.033,0.0096,0.7662,-0.5725,,-0.0479,0.0398,0.976,0.0089,,,-0.0338,0.5])
         },
         sprites: [
           // blue bullet
@@ -64,7 +64,7 @@ var bg,
         size: 9,
         speed: 20, // pixels per second
         sounds: {
-          hit: [3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5]
+          hit: jsfxr([3,,0.0136,,0.1785,0.4393,,-0.6046,,,,,,,,,,,1,,,0.0612,,0.5])
         },
         sprites: [
           // yellow priest
@@ -93,10 +93,10 @@ var bg,
         size: 9,
         speed: 25, // pixels per second
         sounds: {
-          //hit: [0,,0.0274,0.0352,0.2127,0.3728,,0.4773,0.0388,,,,,0.441,0.0164,0.4501,,,1,,0.0247,,,0.5], // single blip
-          hit: [0,,0.2246,,0.2099,0.458,,0.4934,,,,,,0.0222,,0.5192,,,1,,,,,0.5], // double blip
+          //hit: jsfxr[0,,0.0274,0.0352,0.2127,0.3728,,0.4773,0.0388,,,,,0.441,0.0164,0.4501,,,1,,0.0247,,,0.5]), // single blip
+          hit: jsfxr([0,,0.2246,,0.2099,0.458,,0.4934,,,,,,0.0222,,0.5192,,,1,,,,,0.5]), // double blip
           // TODO i don't like this gun sound either
-          shoot: [2,,0.1582,,0.2433,0.7687,0.0631,-0.4606,,,,,,0.1545,0.1034,,,,1,,,,,0.5]
+          shoot: jsfxr([2,,0.1582,,0.2433,0.7687,0.0631,-0.4606,,,,,,0.1545,0.1034,,,,1,,,,,0.5])
         },
         sprites: [
           // black trenchcoat
@@ -205,9 +205,10 @@ function createAndroid() {
 }
 
 function playSound(type, sound) {
-  var player = new Audio();
-  player.src = jsfxr(data[type].sounds[sound]);
-  player.play();
+  var player = new Audio(data[type].sounds[sound]);
+  player.addEventListener('canplay', function() {
+    this.play();
+  })
 }
 
 function createBullet(entity) {
@@ -541,6 +542,12 @@ function startGame() {
 // Game loop
 function init() {
   document.title = TITLE;
+
+  // disable audio for Safari
+  var ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('safari') !== -1 && ua.indexOf('chrom') === -1) {
+    playSound = function() {};
+  }
 
   // visible canvas, in window dimensions
   viewport = document.querySelector('canvas');
