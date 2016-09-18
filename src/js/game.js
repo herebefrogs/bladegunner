@@ -188,7 +188,7 @@ function createEntity(type, direction, x, y, variant) {
 }
 
 function createHero() {
-  return createEntity('hero', 0);
+  return createEntity('hero', 0, WIDTH / 2, HEIGHT / 2);
 }
 
 function createAndroid() {
