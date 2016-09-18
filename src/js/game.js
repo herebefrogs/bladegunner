@@ -431,7 +431,7 @@ function renderGameTitle() {
 }
 
 function renderEntity(entity) {
-  var frame = ((entity.type === 'hero') && (entity.direction === 0)) || entity.action === 'die' ? 0 : entity.frame;
+  var frame = ((entity.type === 'hero') && (entity.direction === 0) && (entity.action === 'walk')) || entity.action === 'die' ? 0 : entity.frame;
   var sprite = getSprites(entity)[frame];
   var tileset = (entity.type !== 'bullet' && (entity.lastDirection & DIRECTION_LEFT)) ? data.flippedTileset : data.tileset;
   ctx.drawImage(tileset, Math.floor(sprite.x), Math.floor(sprite.y), entity.size, entity.size,
