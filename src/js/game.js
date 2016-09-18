@@ -468,7 +468,6 @@ function resize() {
 
   // disable smoothing on scaling
   viewport_ctx.mozImageSmoothingEnabled = false;
-  viewport_ctx.webkitImageSmoothingEnabled = false;
   viewport_ctx.msImageSmoothingEnabled = false;
   viewport_ctx.imageSmoothingEnabled = false;
 
@@ -483,22 +482,22 @@ function newGame(keyEvent) {
 };
 
 function keyPressed(keyEvent) {
-  if (keyEvent.which == 32 && hero.action !== 'shoot') {
+  if (keyEvent.which === 32 && hero.action !== 'shoot') {
     hero.action = 'shoot';
     hero.lastBullet = SHOOT_FREQ;
   }
-  if (keyEvent.which == 37) { hero.moveLeft = true; }
-  if (keyEvent.which == 38) { hero.moveUp = true; }
-  if (keyEvent.which == 39) { hero.moveRight = true; }
-  if (keyEvent.which == 40) { hero.moveDown = true; }
+  if (keyEvent.which === 37) { hero.moveLeft = true; }
+  if (keyEvent.which === 38) { hero.moveUp = true; }
+  if (keyEvent.which === 39) { hero.moveRight = true; }
+  if (keyEvent.which === 40) { hero.moveDown = true; }
 }
 
 function keyReleased(keyEvent) {
-  if (keyEvent.which == 32) { hero.action = 'walk'; }
-  if (keyEvent.which == 37) { hero.moveLeft = false; }
-  if (keyEvent.which == 38) { hero.moveUp = false; }
-  if (keyEvent.which == 39) { hero.moveRight = false; }
-  if (keyEvent.which == 40) { hero.moveDown = false; }
+  if (keyEvent.which === 32) { hero.action = 'walk'; }
+  if (keyEvent.which === 37) { hero.moveLeft = false; }
+  if (keyEvent.which === 38) { hero.moveUp = false; }
+  if (keyEvent.which === 39) { hero.moveRight = false; }
+  if (keyEvent.which === 40) { hero.moveDown = false; }
 }
 
 function startGame() {
