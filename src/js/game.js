@@ -263,15 +263,15 @@ function glitchEntity(entity, elapsed) {
       entity.action = entity.glitch ? 'shoot' : 'walk';
     }
   }
+}
 
-  if (entity.glitch) {
+function shootEntity(entity, elapsed) {
+  if (entity.action === 'shoot') {
     if ((entity.lastBullet += elapsed) > SHOOT_FREQ) {
        entity.lastBullet = 0;
        entity.createBullet = true;
     }
   }
-
-  // TODO should the hero be subject to the glitch too?
 }
 
 function moveEntity(entity, elapsed) {
@@ -477,15 +477,15 @@ function resize() {
 };
 
 function newGame(keyEvent) {
-  if (keyEvent.which == 13) {
+  if (keyEvent.which === 13) {
     startGame();
   }
 };
 
 function keyPressed(keyEvent) {
-  if (keyEvent.which == 32) {
+  if (keyEvent.which == 32 && hero.action !== 'shoot') {
     hero.action = 'shoot';
-    hero.createBullet = true;
+    hero.lastBullet = SHOOT_FREQ;
   }
   if (keyEvent.which == 37) { hero.moveLeft = true; }
   if (keyEvent.which == 38) { hero.moveUp = true; }
@@ -606,6 +606,7 @@ function update(elapsedTime) {
     } else {
       glitchEntity(entity, elapsedTime);
       orientEntity(entity, elapsedTime);
+      shootEntity(entity, elapsedTime);
       moveEntity(entity, elapsedTime);
       frameEntity(entity, elapsedTime);
       containEntity(entity);
