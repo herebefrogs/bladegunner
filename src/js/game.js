@@ -354,7 +354,6 @@ function checkEndGame() {
 
 function endGame() {
   cancelAnimationFrame(requestId);
-  requestId = undefined;
 
   removeEventListener('keydown', keyPressed);
   removeEventListener('keyup', keyReleased);
@@ -532,7 +531,7 @@ function startGame() {
   addEventListener('keyup', keyReleased);
 
   lastTime = Date.now();
-  requestId = requestAnimationFrame(loop);
+  loop();
 }
 
 // Game loop
@@ -589,13 +588,11 @@ function flipTileset(img) {
 }
 
 function loop() {
+  requestId = requestAnimationFrame(loop);
   currentTime = Date.now();
   update((currentTime - lastTime) / 1000);
   render();
   lastTime = currentTime;
-  if (requestId) {
-    requestId = requestAnimationFrame(loop);
-  }
 };
 
 function update(elapsedTime) {
