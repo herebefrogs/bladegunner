@@ -414,7 +414,7 @@ function renderGameTitle() {
     viewport_ctx.drawImage(data.flippedTileset, data.android.sprites[1].shoot[0].x, data.android.sprites[1].shoot[0].y, data.android.size, data.android.size,
                                          viewport.width - data.android.size * scaleToFit * 1.5, viewport.height / 3 + line_height * 0.5, data.android.size * scaleToFit * 1.5, data.android.size * scaleToFit * 1.5);
 
-    text = 'Move: arrow keys     Shoot: space bar';
+    text = 'Move: arrows/WASD/ZQSD   Shoot: SPACE';
     viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 - line_height);
 
     text = 'Press ENTER to start';
@@ -485,18 +485,26 @@ function keyPressed(keyEvent) {
     hero.action = 'shoot';
     hero.lastBullet = SHOOT_FREQ;
   }
-  if (keyEvent.which === 37) { hero.moveLeft = true; }
-  if (keyEvent.which === 38) { hero.moveUp = true; }
-  if (keyEvent.which === 39) { hero.moveRight = true; }
-  if (keyEvent.which === 40) { hero.moveDown = true; }
+  // Left arrow / A / Q
+  if (keyEvent.which === 37 || keyEvent.which === 65 ||keyEvent.which === 81) { hero.moveLeft = true; }
+  // Up arrow / W / Z
+  if (keyEvent.which === 38 || keyEvent.which === 90 || keyEvent.which === 87) { hero.moveUp = true; }
+  // Right arrow / D
+  if (keyEvent.which === 39 || keyEvent.which === 68) { hero.moveRight = true; }
+  // Down arrow / S
+  if (keyEvent.which === 40 || keyEvent.which === 83) { hero.moveDown = true; }
 }
 
 function keyReleased(keyEvent) {
   if (keyEvent.which === 32) { hero.action = 'walk'; }
-  if (keyEvent.which === 37) { hero.moveLeft = false; }
-  if (keyEvent.which === 38) { hero.moveUp = false; }
-  if (keyEvent.which === 39) { hero.moveRight = false; }
-  if (keyEvent.which === 40) { hero.moveDown = false; }
+  // Left arrow / A / Q
+  if (keyEvent.which === 37 || keyEvent.which === 65 || keyEvent.which === 81) { hero.moveLeft = false; }
+  // Up arrow / W / Z
+  if (keyEvent.which === 38 || keyEvent.which === 90 || keyEvent.which === 87) { hero.moveUp = false; }
+  // Right arrow / D
+  if (keyEvent.which === 39 || keyEvent.which === 68) { hero.moveRight = false; }
+  // Down arrow / S
+  if (keyEvent.which === 40 || keyEvent.which === 83) { hero.moveDown = false; }
 }
 
 function startGame() {
