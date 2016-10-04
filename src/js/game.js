@@ -19,7 +19,7 @@ var bg,
     win = true,
     hero,
     data = {
-      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC0AAAAtCAYAAAA6GuKaAAAClUlEQVR42s2ZPVLDMBCFfRFKhmHouQUF5C7Q0VBwiNDRMDBcAgoajkFBQcMJRFZ4nfXzSt6VFSWe2YnifFo//e1aStf1V3jsAloHV1Pm9zugTZ18Pk9sb4wieCp6W1E6CaVM6C4G5vZ4pTJ0X/Ju0S9X57Otb8nMiiYnbClHLZmU4KTot/ePaFTG3lnCyO8aw2XX1OCWoyMcUnwY18kxkrP4yfX0IF62vl9Y0VB0ipGiNSY1GinG1NPMJspL7xUxKFIVbWndoTH/kCUM1WJqiOaEcfoahgdRuZTJJZfIbATE5MKCCpLLsCCUHgo7Y6aC7NFDiwZ9RAhaw3bNmJILhB50FGowCq8yByVaJI9FopPCj85W0RLxtAljTjB95UnZc2/uu5UxJZf4w89J0GxvzFxvx0pKUpDboEXM2unHMqfZEe5KNEEWBpOLJhp3Li7Rw/BkWr+YWdv9+ERndshNGdPUoEqaM7EwRgxwE0YRxPF4jvGJFkKlsOQ5hbLiR78h3yeXHONOLlrL8QClFWPNhjV3L212LnfXD6GGdS2ur83ekoweKF8T0Tyi+V1CS818UXxmcwllu7/citaEeESTUNrJsGnCY0KhRNLbnPBRp7Bg/sEjOjUKNXuafYabp5HgWKekp/meJlq7cg2QDZGCSawUTJ9DQ0tFp3oawxNPGSkcGZ4yLBxFsw2CS6ZHbiHWEo02mVI1o0cN0fSZFdwiTnvnNC7W5KLVIIujXTGmNJ5yJJ21ZEzvH1xJHsXioXlLxtTTNO/4zBjOj4sYWljM4NAzI4W7z/LotZCzWKr1TRnL1JCpl4xDHZ6DLGFkOce4RVNrtQfIIdUeZmH4P5Yc4965wPEUHlktZnBOzzGe3cvB7lzw3h9T3Nr7No/DNwAAAABJRU5ErkJggg==',
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACn0lEQVR42uWaMU7FMAyGexFGhBA7t2Dh3YWRhWOUjQ3EJWBg4SAMLJwgKKUu5sdO7bykr+l7kqW+6qub30ka12nXjb/w0AW0Dn6LMl8fAa2r8Rsa8P74zw7GCMJR/MnFLpBpum5Pd4FMF//bAN6YkMuE7mpi8Mb8POc94qPg8+cwmRSAwX9sx2hqAJ6uL2d7Y0lmsZ6PjSHTGrQkowm3zPlUIHhARPEvr2+DxWMtQDkM/y8xdGztdeT4VOABQIamwhQA3hPYIByq2Gi6JsVwzuIn1fM8CEXFj700GYrXGC5eYrTRoTGL9jxxyvG+57IYFGtd491z3hrtrTI/kGX5aZGxTKF4YZwz5CQe5zKpJIeYVJJTyo9pdJAJUQytMuZVA5/e4xM8SAFqhbEmS9ryJUb6kIzAi8wmxbNkaC/xagDYy4K0HjfFmN8ReIIgJQs553L9zP23MuZkKXyeBcmaZ+Z6f7hISBh4eWkVTO/0Y5nz5AirNFKDLAwmJxKDyYnJT+/0Myd+Gi6JKK6G6e1+fOITFdUmGdOQjxdJztiD4w8DXDU/gjBaz+cYn3jWUN4wtc4uPFmL+5HEjUlOinEnOVIEcSOhNcZbCK1RzSlVAapTEbq7uQ/HaoN4/lqI5nGWe10Jk+4ttYWfm8RrDrUbaI5T/mqLx3vP6XKLtwZnDT1vHvYlxDc755cSn9NDtUZU0TmfOzdrXOOa8yWe9mvredPT/mjXedzE1zb0W2RM6a3miDtrkTHl93QR30LGjw9aZEw9HyuftGcO++dZTCwnEYNDkRjecNxjK+XH9DpLdW8tik0yliHPv2qKRksB1t/XwPDjFOMWH6Mm3YAPMelmnCnlR2PoW54U467kwHYPbgGthpG+w0sxnmrO5is5eO4bcTqrONOJWI4AAAAASUVORK5CYII=',
       bg: {
         size: 9,
         sprites: [
@@ -35,12 +35,12 @@ var bg,
         },
         sprites: [
           {
-            die: [ {x: 18, y: 31 } ],
-            trace: [ {x: 18, y: 27 }, { x: 22, y: 31 } ]
+            die: [ {x: 45, y: 4 } ],
+            trace: [ {x: 45, y: 0 }, { x: 49, y: 4 } ]
           },
           {
-            die: [ {x: 27, y: 31 } ],
-            trace: [ {x: 27, y: 27 }, { x: 31, y: 31 } ]
+            die: [ {x: 54, y: 4 } ],
+            trace: [ {x: 54, y: 0 }, { x: 58, y: 4 } ]
           }
         ]
       },
@@ -69,22 +69,22 @@ var bg,
         sprites: [
           // yellow priest
           {
-            die: [ {x: 36, y: 18} ],
+            die: [ {x: 54, y: 18} ],
             walk: [ {x: 0, y: 18}, {x: 9, y: 18}]
           },
           // black trenchcoat
           {
-            die: [ {x: 36, y: 9} ],
+            die: [ {x: 54, y: 9} ],
             walk: [ {x: 0, y: 9}, {x: 9, y: 9}]
           },
           // blue uniform
           {
-            die: [ {x: 36, y: 36} ],
+            die: [ {x: 54, y: 36} ],
             walk: [ {x: 0, y: 36}, {x: 9, y: 36}]
           // },
           // // white coverall
           // {
-          //   die: [ {x: 36, y: 46} ],
+          //   die: [ {x: 54, y: 46} ],
           //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
           }
         ]
@@ -99,27 +99,27 @@ var bg,
         sprites: [
           // black trenchcoat
           {
-            die: [ {x: 36, y: 9} ],
-            walk: [ {x: 0, y: 9}, {x: 9, y: 9}],
-            shoot: [ {x: 18, y: 9}, {x: 27, y: 9}]
+            die: [ {x: 54, y: 9} ],
+            walk: [ {x: 18, y: 9}, {x: 27, y: 9}],
+            shoot: [ {x: 36, y: 9}, {x: 45, y: 9}]
           },
           // yellow priest
           {
-            die: [ {x: 36, y: 18} ],
-            walk: [ {x: 0, y: 18}, {x: 9, y: 18}],
-            shoot: [ {x: 18, y: 18}, {x: 27, y: 18}]
+            die: [ {x: 54, y: 18} ],
+            walk: [ {x: 18, y: 18}, {x: 27, y: 18}],
+            shoot: [ {x: 36, y: 18}, {x: 45, y: 18}]
           },
           // blue uniform
           {
-            die: [ {x: 36, y: 36} ],
-            walk: [ {x: 0, y: 36}, {x: 9, y: 36}],
-            shoot: [ {x: 18, y: 36}, {x: 27, y: 36}]
+            die: [ {x: 54, y: 36} ],
+            walk: [ {x: 18, y: 36}, {x: 27, y: 36}],
+            shoot: [ {x: 36, y: 36}, {x: 45, y: 36}]
           // },
           // // white coverall
           // {
-          //   die: [ {x: 36, y: 45} ],
-          //   walk: [ {x: 0, y: 45}, {x: 9, y: 45}]
-          //   shoot: [ {x: 18, y: 45}, {x: 27, y: 45}]
+          //   die: [ {x: 54, y: 45} ],
+          //   walk: [ {x: 18, y: 45}, {x: 27, y: 45}]
+          //   shoot: [ {x: 36, y: 45}, {x: 45, y: 45}]
           }
         ]
       },
@@ -591,8 +591,8 @@ function flipTileset(img) {
   flipped.width = img.width;
   flipped.height = img.height;
   var ctx = flipped.getContext('2d');
-  var size = img.width / 5;
-  for (var n = 1; n <= 5; n++) {
+  var size = img.width / 7;
+  for (var n = 1; n <= 7; n++) {
     ctx.setTransform(-1, 0, 0, 1, n * size, 0);
     ctx.drawImage(img, (n-1) * size, 0, size, img.height, 0, 0, size, img.height)
   }
