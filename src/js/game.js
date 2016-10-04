@@ -8,6 +8,7 @@ var bg,
     currentTime,
     lastTime,
     elapsedTime,
+    running,
     requestId,
     entities = [],
     bullets = [],
@@ -357,6 +358,7 @@ function endGame() {
 
   removeEventListener('keydown', keyPressed);
   removeEventListener('keyup', keyReleased);
+  document.removeEventListener('visibilitychange', changeVisibility);
 
   addEventListener('keydown', newGame);
   addEventListener('resize', renderEndGame);
@@ -511,8 +513,11 @@ function startGame() {
   removeEventListener('keydown', newGame);
   removeEventListener('resize', renderGameTitle);
   removeEventListener('resize', renderEndGame);
+  document.addEventListener('visibilitychange', changeVisibility);
 
   createBackground();
+
+  running = true;
 
   if (win) {
     nb_androids++;
@@ -595,12 +600,25 @@ function flipTileset(img) {
   return flipped;
 }
 
+function changeVisibility(event) {
+  // event target is document object
+  running = !event.target.hidden;
+  if (running) {
+    // skip all the missed time to avoid a huge leap forward
+    lastTime = Date.now();
+    // restart the game animation loop
+    loop();
+  }
+};
+
 function loop() {
-  requestId = requestAnimationFrame(loop);
-  currentTime = Date.now();
-  update((currentTime - lastTime) / 1000);
-  render();
-  lastTime = currentTime;
+  if (running) {
+    requestId = requestAnimationFrame(loop);
+    render();
+    currentTime = Date.now();
+    update((currentTime - lastTime) / 1000);
+    lastTime = currentTime;
+  }
 };
 
 function update(elapsedTime) {
