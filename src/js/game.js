@@ -1,5 +1,6 @@
 var bg,
     bg_ctx,
+    bg_variant = 0,
     canvas,
     ctx,
     viewport,
@@ -19,12 +20,21 @@ var bg,
     win = true,
     hero,
     data = {
-      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACn0lEQVR42uWaMU7FMAyGexFGhBA7t2Dh3YWRhWOUjQ3EJWBg4SAMLJwgKKUu5sdO7bykr+l7kqW+6qub30ka12nXjb/w0AW0Dn6LMl8fAa2r8Rsa8P74zw7GCMJR/MnFLpBpum5Pd4FMF//bAN6YkMuE7mpi8Mb8POc94qPg8+cwmRSAwX9sx2hqAJ6uL2d7Y0lmsZ6PjSHTGrQkowm3zPlUIHhARPEvr2+DxWMtQDkM/y8xdGztdeT4VOABQIamwhQA3hPYIByq2Gi6JsVwzuIn1fM8CEXFj700GYrXGC5eYrTRoTGL9jxxyvG+57IYFGtd491z3hrtrTI/kGX5aZGxTKF4YZwz5CQe5zKpJIeYVJJTyo9pdJAJUQytMuZVA5/e4xM8SAFqhbEmS9ryJUb6kIzAi8wmxbNkaC/xagDYy4K0HjfFmN8ReIIgJQs553L9zP23MuZkKXyeBcmaZ+Z6f7hISBh4eWkVTO/0Y5nz5AirNFKDLAwmJxKDyYnJT+/0Myd+Gi6JKK6G6e1+fOITFdUmGdOQjxdJztiD4w8DXDU/gjBaz+cYn3jWUN4wtc4uPFmL+5HEjUlOinEnOVIEcSOhNcZbCK1RzSlVAapTEbq7uQ/HaoN4/lqI5nGWe10Jk+4ttYWfm8RrDrUbaI5T/mqLx3vP6XKLtwZnDT1vHvYlxDc755cSn9NDtUZU0TmfOzdrXOOa8yWe9mvredPT/mjXedzE1zb0W2RM6a3miDtrkTHl93QR30LGjw9aZEw9HyuftGcO++dZTCwnEYNDkRjecNxjK+XH9DpLdW8tik0yliHPv2qKRksB1t/XwPDjFOMWH6Mm3YAPMelmnCnlR2PoW54U467kwHYPbgGthpG+w0sxnmrO5is5eO4bcTqrONOJWI4AAAAASUVORK5CYII=',
+      tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACrUlEQVR42uWaO1LEMAyGfRFKhmHouQUNexdKGo6xdHQwXAIKGg5CQcMJzDhE4UdIsux1Qhwyo0k2+0XRw44dOSGMW7wLkUtg26LMx1vkEubYBgNe73/JnzGC49z5o7NdJNH8uj7eRRLd+W8D0JhYy8RwMTH8xnge+RLnk8Onj3ESKQCD/mTHKGoAHi7Ps9lYklks88kYEs2gJRnNcU+ftwKBARGdf3p+GSQdawGqYfC3xNCxN+ucw66AAeAMdYUpAJgJbhBvqtxousZikPPosTKPQWjq/JilSbjzGoPOS4zWOjRm0cwTpxwfeq6K4c56x/jiPu+N9laZL8gz/PTIeLpQujD1GVKSjmsZa5JDjDXJaaXH1TpIhCjGXhn3qMGf3uMTPEoB6oXxTpa04UuM9F8yAi8ym3QeJkMHOa8GAF4WpPG4K8b9joATBGmyUHOuVk/ut5dxT5bi+0mUpHsml/3hImHCgOWlVTD7Qj2ePk+KeJVGMsjD8MmJxPDJiUvPvlBPzvmpuRhRXA2z9+spc96oqHbJuJp8ukhSBg+OHwzjZtMjOEbjeY4pcx4MRcPUOrvwZG2uR3JunORYTPEkR4ogX0jojSkthM5RzWlVAZqnInRzdRuXEnwD0ySng2wmVtpjxViTgIpqjfE6hwYeEpwS53NBDJZRNc5b53FfE5zSzFv3qnLeahXSDS1DretaZV67V7Xz3v9q960zL+3/Rea1xGy+z1v32PTTPpegVY7zYekNF/G1Bf0eGdf0VlOEynpkXPN7ugiXkPnHBz0yrsynyietmbP18yomlZOI4U2RGDScr7G10uN6naW6txbFLhlPk8evmpLQU5fX39fA4LHFFDufoibdAJuYdDNkWunRGPqWx2KKKzlsuYcvAa2Gkb7Ds5iSas7mKzn83CcQiYEX6i8cEQAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
         sprites: [
+          // big/small square tile
           { x: 0, y: 27 },
-          { x: 9, y: 27 }
+          { x: 9, y: 27 },
+          // concentric square tile
+          { x: 18, y: 27 },
+          { x: 27, y: 27 },
+          // parkay square tile
+          { x: 36, y: 27 },
+          { x: 45, y: 27 },
+          // aztec tile
+          { x: 54, y: 27 }
         ]
       },
       bullet: {
@@ -349,6 +359,7 @@ function checkEndGame() {
     endGame();
   } else if (nb_retires === nb_androids) {
     win = true;
+    bg_variant = (bg_variant + 1) % 4;
     endGame();
   }
 }
@@ -451,13 +462,26 @@ function renderScore(canvas, context) {
   context.fillText(casualties, canvas.width - context.measureText(casualties).width, 0);
 }
 
-function createBackground() {
-  var size = data.bg.size;
-  for (var x = 0; x < WIDTH; x += size) {
+function createBackground(variant, size, sprite) {
+  size = data.bg.size;
+  if (variant > 1) {
+    size -= 1;
+  }
+  var i = 0;
+  for (var x = 0; x <= WIDTH; x += size) {
     // skip one tile vertically for score
-    for (var y = size; y < HEIGHT; y += size) {
-      var sprite = data.bg.sprites[randomInt(1, 10) > 9 ? 1 : 0];
+    for (var y = size; y <= HEIGHT; y += size) {
+      if (variant === 0) {
+        sprite = data.bg.sprites[randomInt(1, 10) > 9 ? 1 : 0];
+      } else if (variant === 1) {
+        sprite = data.bg.sprites[2 + i];
+      } else if (variant === 2) {
+        sprite = data.bg.sprites[4 + i];
+      } else {
+        sprite = data.bg.sprites[6];
+      }
       bg_ctx.drawImage(data.tileset, sprite.x, sprite.y, size, size, x, y, size, size);
+      i = (i + 1) % 2;
     }
   }
 }
@@ -515,7 +539,7 @@ function startGame() {
   removeEventListener('resize', renderEndGame);
   document.addEventListener('visibilitychange', changeVisibility);
 
-  createBackground();
+  createBackground(bg_variant);
 
   running = true;
 
