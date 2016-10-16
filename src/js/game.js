@@ -645,6 +645,15 @@ function loop() {
   }
 };
 
+function collisionEntities(a, b) {
+  return {
+    left: a.x - (b.x + b.size),
+    right: a.x + a.size - b.x,
+    top: a.y - (b.y + b.size),
+    bottom: a.y + a.size - b.y
+  };
+};
+
 function update(elapsedTime) {
   entities.forEach(function(entity, i) {
     if (entity.action === 'die') {
@@ -661,6 +670,36 @@ function update(elapsedTime) {
         entity.createBullet = false;
         bullets.push(createBullet(entity));
         playSound(entity.type, 'shoot');
+      }
+    }
+  });
+
+  entities.forEach(function(entity, i, entities) {
+    for (var n = i+1; n < entities.length; n++) {
+      var other = entities[n];
+      var box = collisionEntities(entity, other);
+      // collision test
+      if (box.right > 0 && box.left < 0 && box.bottom > 0 && box.top < 0) {
+        // collision on the right side while moving right
+        if ((entity.direction & DIRECTION_RIGHT) && box.right < entity.size) {
+          entity.x -= box.right / 2;
+          other.x += box.right / 2;
+        }
+        // collision on the left side while moving left
+        if ((entity.direction & DIRECTION_LEFT) && -box.left < entity.size) {
+          entity.x -= box.left / 2;
+          other.x += box.left / 2;
+        }
+        // collision on the bottom side while moving down
+        if ((entity.direction & DIRECTION_DOWN) && box.bottom < entity.size) {
+          entity.y -= box.bottom / 2;
+          other.y += box.bottom / 2;
+        }
+        // collision on the top side while moving up
+        if ((entity.direction & DIRECTION_UP) && -box.top < entity.size) {
+          entity.y -= box.top / 2;
+          other.y += box.top / 2;
+        }
       }
     }
   });
