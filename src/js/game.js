@@ -365,6 +365,7 @@ function checkEndGame() {
 }
 
 function endGame() {
+  ga('send', 'event', 'level:' + nb_androids, (win ? 'all androids retired' : (hero.dead ? 'player died' : 'all bystanders died')), 'casualties:' + nb_casualties);
   cancelAnimationFrame(requestId);
 
   removeEventListener('keydown', keyPressed);
@@ -569,6 +570,7 @@ function startGame() {
 
   lastTime = Date.now();
   loop();
+  ga('send', 'event', 'level:' + nb_androids, 'game start', 'bystanders:' + nb_bystanders);
 }
 
 // Game loop
@@ -608,6 +610,7 @@ function init() {
     addEventListener('resize', renderGameTitle);
   });
   img.src = data.tileset;
+  ga('send', 'event', 'splash screen');
 };
 
 function flipTileset(img) {
