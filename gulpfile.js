@@ -127,10 +127,15 @@ gulp.task('report', ['zip'], function() {
 // base64 encode png spritesheet asset and inline it in js
 gulp.task('encode', function()  {
   fs.readFile('src/assets.png', function(err, original_data) {
-    var base64Image = 'data:image/png;base64,' + original_data.toString('base64');
+    var base64Tiles = 'data:image/png;base64,' + original_data.toString('base64');
 
-    gulp.src('src/js/game.js')
-      .pipe(replace(/tileset: '.*'/gm, 'tileset: \'' + base64Image + '\''))
-      .pipe(gulp.dest('./src/js/'));
+    fs.readFile('src/charset.png', function(err, original_data) {
+      var base64Chars = 'data:image/png;base64,' + original_data.toString('base64');
+
+      gulp.src('src/js/game.js')
+        .pipe(replace(/tileset: '.*'/gm, 'tileset: \'' + base64Tiles + '\''))
+        .pipe(replace(/charset: '.*'/gm, 'charset: \'' + base64Chars + '\''))
+        .pipe(gulp.dest('./src/js/'));
+    });
   });
 });

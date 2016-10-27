@@ -20,6 +20,8 @@ var bg,
     win = true,
     hero,
     data = {
+      alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./',
+      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJwAAAAGCAYAAAA2RfdoAAAA9ElEQVR42rWXUQ7DIAxDe/+T7ncn6LZKlVBH4ucEkCqRUgpxjBOO49vO9+v8PWP/ttX4aM+eaP7df757rlnZ2zjW9Y/4SLBxbeUXtZ3/u+tn8Zu165uVgFHndxBuBVAUSBLQjv0XJIGJwt6JVzSX+C3Jpk6AQyAKIlmjctp3Ea6qIPR/0ThR6YiYs3lU3YiPjqqFhOukMHrKdipcJTUSBcmC2Ck3iP8k2FngCSkJFhmJLbKtTgkrUqqjnh3CKSUgqqEUihJutpZbk0YpeAfhyB7CfVTlVYFKa55u0Vu9NDjp2y3a6YXFIX71kqayhsKkMp4d2g/N53JOAWoO8gAAAABJRU5ErkJggg==',
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACrUlEQVR42uWaMU7FMAyGcxFGhBA7t2Dh3YWRhWM8NjYQl4CBhYMwsHCCoJS6/BjbcfLS0pQnWS3lq2M7SeM6DWH8xbsQuQT2W5T5eItcwhy/wYDX+1/yZ4zgOHf+6GwXSTS/ro93kUR3/tsANCbWMjFcTAxvGK8jX+J8cvj0MU4iBWDQn+wYRQ3Aw+V5tjeWZBbr+WQMiWbQkozmuGfOW4HAgIjOPz2/DJLOtQDVMPi3xNC5t9c5h1MBA8AZmgpTALAnuEF8qHKj6R6LQc6jx+p5DEJT58demoQ7rzHovMRoo0NjFu154pTzQ69VMdxZ7xpfPOe90d4q8wV5lp8eGc8USjemOUNK0nktYyU5xFhJTis9rtFBIkQx9sq4Vw3+9B6f4FEKUC+MN1nSli8x0n/JCLzIbNJ5SIYOcl4NALwsSOtxV4z7HQETBClZqLlWq6dVW+5kKb6fREm6Z3K9P9wkJAxYXloFsy/U45nzpIhXaSSDPAxPTiSGJycuPftCPTnnp+FiRHE1zN6vp8x5o6LaJeMa8ukmSRk8OH4wjJtNj+AYrec5psx5MBQNU+vswpO1uR7JuTHJsZjiJEeKIN9I6I0pLYTOUc2ZswKUbSub5Nxc3calBN/ANMnpIJuJlY5YMdYkoKJaY7zOoYGHBKfE+VwQg2VUjfPWdTzWBKe05622qpy3RoXUoGWodV+rntfaqnbe+7/aY+uel47/oue1jtn8nLfa2PTTPtdBq1znw9I/3MTXNvR7ZFzpraYIlfXIuPJ7ugm3kPnHBz0yrp5PlU/aM2f751VMKicRw4ciMWg432Nrpcf1Okt1by2KXTKeIY9fNSWhpy6via+BwXOLKXY+RU1qAIeY1BgyrfRoDH3LYzHFlRy23cO3gFbDSN/hWUxJNWfzlRx+7RPzuoEXEcnwxgAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
@@ -137,6 +139,7 @@ var bg,
     TITLE = 'BLADE GUNNER',
     FONT_SIZE = 8, // in pixels
     FONT_FAMILY = 'Courier',
+    FONT = FONT_SIZE + 'px Courier', // in pixels
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
@@ -452,15 +455,31 @@ function renderEntity(entity) {
 
 }
 
-function renderScore(canvas, context) {
+/* from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
+function renderText(str, x, y) {
+  str = str.toUpperCase();
+  for (var i = 0; i < str.length; i++) {
+    ctx.drawImage(
+      data.charset,
+      data.alphabet.indexOf(str[i]) * 4, //sx
+      0, //sy
+      4, //sw
+      6, //sh
+      x + i * 5, //dx
+      y, //dy
+      4, //dh
+      6 //dw
+    );
+  }
+}
+
+function renderScore(context, /* uglify optim */ casualties) {
   context.fillStyle = GREY;
-  context.fillRect(0, 0, canvas.width, data.bg.size * scaleToFit);
-  context.fillStyle = RED;
-  context.fillText(TITLE, 0, 0);
-  context.fillStyle = WHITE;
-  context.fillText('android' + (nb_androids > 1 ? 's' : '') + ': ' + nb_retires + '/' + nb_androids, canvas.width / 3, 0);
-  var casualties = 'casulaties: ' + nb_casualties;
-  context.fillText(casualties, canvas.width - context.measureText(casualties).width, 0);
+  context.fillRect(0, 0, WIDTH, data.bg.size);
+  renderText(TITLE, 0, 2);
+  renderText(('android' + (nb_androids > 1 ? 's' : '') + ':' + nb_retires + '/' + nb_androids), WIDTH / 3, 2);
+  casualties = 'casulaties:' + nb_casualties;
+  renderText(casualties, WIDTH - casualties.length*5, 2);
 }
 
 function createBackground(variant, size, sprite) {
@@ -497,6 +516,7 @@ function resize() {
   viewport_ctx.msImageSmoothingEnabled = false;
   viewport_ctx.imageSmoothingEnabled = false;
 
+  // TODO remove
   viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
   viewport_ctx.textBaseline = 'top';
 };
@@ -594,6 +614,8 @@ function init() {
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
+  ctx.font = FONT;
+  ctx.textBaseline = 'top';
 
   bg = document.createElement('canvas')
   bg.width = WIDTH;
@@ -605,9 +627,16 @@ function init() {
   img.addEventListener('load', function() {
     data.tileset = img;
     data.flippedTileset = flipTileset(data.tileset);
-    renderGameTitle();
-    addEventListener('keydown', newGame);
-    addEventListener('resize', renderGameTitle);
+
+    img = new Image();
+    img.addEventListener('load', function() {
+      data.charset = img;
+
+      renderGameTitle();
+      addEventListener('keydown', newGame);
+      addEventListener('resize', renderGameTitle);
+    });
+    img.src = data.charset;
   });
   img.src = data.tileset;
   ga('send', 'event', 'splash screen');
@@ -702,12 +731,12 @@ function blit() {
 function render() {
   ctx.drawImage(bg, 0, 0);
 
+  renderScore(ctx);
+
   entities.forEach(renderEntity);
   bullets.forEach(renderEntity);
 
   blit();
-
-  renderScore(viewport, viewport_ctx);
 };
 
 addEventListener('load', init);
