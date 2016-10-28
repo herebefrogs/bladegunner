@@ -20,8 +20,8 @@ var bg,
     win = true,
     hero,
     data = {
-      alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./',
-      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJwAAAAGCAYAAAA2RfdoAAAA9ElEQVR42rWXUQ7DIAxDe/+T7ncn6LZKlVBH4ucEkCqRUgpxjBOO49vO9+v8PWP/ttX4aM+eaP7df757rlnZ2zjW9Y/4SLBxbeUXtZ3/u+tn8Zu165uVgFHndxBuBVAUSBLQjv0XJIGJwt6JVzSX+C3Jpk6AQyAKIlmjctp3Ea6qIPR/0ThR6YiYs3lU3YiPjqqFhOukMHrKdipcJTUSBcmC2Ck3iP8k2FngCSkJFhmJLbKtTgkrUqqjnh3CKSUgqqEUihJutpZbk0YpeAfhyB7CfVTlVYFKa55u0Vu9NDjp2y3a6YXFIX71kqayhsKkMp4d2g/N53JOAWoO8gAAAABJRU5ErkJggg==',
+      alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./,!abcdefghijklnopqrstuvxyzmw',
+      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAMCAYAAADs+hbCAAABwElEQVR42u2ZUY7DMAhEc8G9/xX6uyfIth+RspZh3oAt5aOWogQ7tQMeBnCP493O39f5ue7Pl6zG7/Lsin5/PY9945qVb7uPdfUjOhLbuLLSi8rO/O76455lLXv339hKg1Lj7ABkByCRoSPDkw3fYc9IR2V7Z7+I/SNi2QpI4p0OCKiiGdDIfLsA6TIQdcBovGKvmeywOtUxA7ILxhCQnRBJvXQnQ7rOQjefruOmM0R/AoYMGAS0ji1U5KCATOWnhWyHfTuAVEyShUPKcBSQCiwOINWcKwDphOwoHUjRW6FvZXTKLt2kvFrUOOmBW1TQgspxjGoRqUCubELGM8App6A56Lc9tJ3Hz3ldY5+SVV80Nj5X+iK5nYDSqonmNWp+xzPpt6xMyL9ttceZ9O2EIVrZusB0z+Syu5MykPnInRyfhCmAYMgKm83YMerrrjN7B218BjBqYFXIUCBmeUgVAOp9cpxCHEYVALbdARCckNsFH10bh2yyQcSAivG686tKks6vUgKSMlTWdSvh8G6yXYch1e8dB8EMuePfBBXunRyRHjm4RxJOjkq/kTIuZcypbqJAGftXFjURmFSfYut7+wPbFiB7XNuogAAAAABJRU5ErkJggg==',
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACrUlEQVR42uWaMU7FMAyGcxFGhBA7t2Dh3YWRhWM8NjYQl4CBhYMwsHCCoJS6/BjbcfLS0pQnWS3lq2M7SeM6DWH8xbsQuQT2W5T5eItcwhy/wYDX+1/yZ4zgOHf+6GwXSTS/ro93kUR3/tsANCbWMjFcTAxvGK8jX+J8cvj0MU4iBWDQn+wYRQ3Aw+V5tjeWZBbr+WQMiWbQkozmuGfOW4HAgIjOPz2/DJLOtQDVMPi3xNC5t9c5h1MBA8AZmgpTALAnuEF8qHKj6R6LQc6jx+p5DEJT58demoQ7rzHovMRoo0NjFu154pTzQ69VMdxZ7xpfPOe90d4q8wV5lp8eGc8USjemOUNK0nktYyU5xFhJTis9rtFBIkQx9sq4Vw3+9B6f4FEKUC+MN1nSli8x0n/JCLzIbNJ5SIYOcl4NALwsSOtxV4z7HQETBClZqLlWq6dVW+5kKb6fREm6Z3K9P9wkJAxYXloFsy/U45nzpIhXaSSDPAxPTiSGJycuPftCPTnnp+FiRHE1zN6vp8x5o6LaJeMa8ukmSRk8OH4wjJtNj+AYrec5psx5MBQNU+vswpO1uR7JuTHJsZjiJEeKIN9I6I0pLYTOUc2ZswKUbSub5Nxc3calBN/ANMnpIJuJlY5YMdYkoKJaY7zOoYGHBKfE+VwQg2VUjfPWdTzWBKe05622qpy3RoXUoGWodV+rntfaqnbe+7/aY+uel47/oue1jtn8nLfa2PTTPtdBq1znw9I/3MTXNvR7ZFzpraYIlfXIuPJ7ugm3kPnHBz0yrp5PlU/aM2f751VMKicRw4ciMWg432Nrpcf1Okt1by2KXTKeIY9fNSWhpy6via+BwXOLKXY+RU1qAIeY1BgyrfRoDH3LYzHFlRy23cO3gFbDSN/hWUxJNWfzlRx+7RPzuoEXEcnwxgAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
@@ -455,28 +455,37 @@ function renderEntity(entity) {
 
 }
 
-/* from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
-function renderText(str, x, y) {
-  str = str.toUpperCase();
+/* inspired from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
+function renderText(str, x, y /* uglify optim */, char, extrawide, extrathin, lowercase, n, sy, offset) {
+  offset = 0;
   for (var i = 0; i < str.length; i++) {
+    char = str[i];
+    extrawide = char === 'm' || char === 'w';
+    extrathin = char === 'i';
+    lowercase = char.toUpperCase() !== char;
+    n = data.alphabet.indexOf(char) % 41; // A-Z + 0-9 + punctuation
+    sy = lowercase ? 6 : 0;
+    if (extrawide) console.log(extrawide, char);
     ctx.drawImage(
       data.charset,
-      data.alphabet.indexOf(str[i]) * 4, //sx
-      0, //sy
-      4, //sw
+      n * 4,
+      sy,
+      // TODO handle extra extra offset for w, the 2nd extrawide char
+      4 + (extrawide ? 2 : (extrathin ? -2 : 0)), //sw
       6, //sh
-      x + i * 5, //dx
+      x + offset,
       y, //dy
-      4, //dh
+      4 + (extrawide ? 2 : (extrathin ? -2 : 0)), //dh
       6 //dw
     );
+    offset += 4 + (lowercase ? (extrawide ? 2 : (extrathin ? -2 : 0)) : 1);
   }
 }
 
 function renderScore(context, /* uglify optim */ casualties) {
   context.fillStyle = GREY;
   context.fillRect(0, 0, WIDTH, data.bg.size);
-  renderText(TITLE, 0, 2);
+  ctx.drawImage(data.charset, 108, 6, 52, 6, 0, 2, 52, 6);
   renderText(('android' + (nb_androids > 1 ? 's' : '') + ':' + nb_retires + '/' + nb_androids), WIDTH / 3, 2);
   casualties = 'casulaties:' + nb_casualties;
   renderText(casualties, WIDTH - casualties.length*5, 2);
