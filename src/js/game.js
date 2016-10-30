@@ -21,7 +21,7 @@ var bg,
     hero,
     data = {
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./,!abcdefghijklnopqrstuvxyzmw',
-      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAMCAYAAADs+hbCAAABwElEQVR42u2ZUY7DMAhEc8G9/xX6uyfIth+RspZh3oAt5aOWogQ7tQMeBnCP493O39f5ue7Pl6zG7/Lsin5/PY9945qVb7uPdfUjOhLbuLLSi8rO/O76455lLXv339hKg1Lj7ABkByCRoSPDkw3fYc9IR2V7Z7+I/SNi2QpI4p0OCKiiGdDIfLsA6TIQdcBovGKvmeywOtUxA7ILxhCQnRBJvXQnQ7rOQjefruOmM0R/AoYMGAS0ji1U5KCATOWnhWyHfTuAVEyShUPKcBSQCiwOINWcKwDphOwoHUjRW6FvZXTKLt2kvFrUOOmBW1TQgspxjGoRqUCubELGM8App6A56Lc9tJ3Hz3ldY5+SVV80Nj5X+iK5nYDSqonmNWp+xzPpt6xMyL9ttceZ9O2EIVrZusB0z+Syu5MykPnInRyfhCmAYMgKm83YMerrrjN7B218BjBqYFXIUCBmeUgVAOp9cpxCHEYVALbdARCckNsFH10bh2yyQcSAivG686tKks6vUgKSMlTWdSvh8G6yXYch1e8dB8EMuePfBBXunRyRHjm4RxJOjkq/kTIuZcypbqJAGftXFjURmFSfYut7+wPbFiB7XNuogAAAAABJRU5ErkJggg==',
+      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAMCAYAAADs+hbCAAABvUlEQVR42u2Ya47DIAyEc8G9/xX6d0+Qtj8iRRR7vrFB2pWKFCU8YsAM48dxvMr5+zjfz/37qqv+e332RP9f32PbOGdlbfe+7v7IHolu3DrZ12z9kY6JfGf+2ZllJRr70b5SoUQ5uwDZAUik6Ejx6rKt1mcGBKr7TM8ZiFx52wCpDo2CRgGIApLK2wVIwspkPmoxFMurg3XZLwNrxrgdMKaA7JhIcosi+btMNlW+uix0HtedIfsngHXYh5h60u+a7Gwdf95kO+zbAaRikswcUoajgMzAEK21ctirAOmYbMLmlsmusgBlFwriqvOtAh/H2a/4ZuRC0otI3YoIKHQ/2R5csLn1b/ln5Tx+zusZ21RdtUV943elLaq3HNBqdNaRXzETavyK6PBbdt04aH5cv1BFrvTAld9EzGn2dlwGIo+8lQuTRs2CIStsNmPHqK07z2wMOngV0XVSKS4QiePuAkCNJ+kUJ9Bw9EkAmQHBMbld8NG5sckmB0QUSFMQVfkZQzrylUtAXIbKvGr9WL7Jdh2GVP87FwQz5OpUj5PLqoynyeQO4DrpEppBIICf7k0EKGP7yqAmApNqU2x9L0/sjLERF26Y+QAAAABJRU5ErkJggg==',
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACrUlEQVR42uWaMU7FMAyGcxFGhBA7t2Dh3YWRhWM8NjYQl4CBhYMwsHCCoJS6/BjbcfLS0pQnWS3lq2M7SeM6DWH8xbsQuQT2W5T5eItcwhy/wYDX+1/yZ4zgOHf+6GwXSTS/ro93kUR3/tsANCbWMjFcTAxvGK8jX+J8cvj0MU4iBWDQn+wYRQ3Aw+V5tjeWZBbr+WQMiWbQkozmuGfOW4HAgIjOPz2/DJLOtQDVMPi3xNC5t9c5h1MBA8AZmgpTALAnuEF8qHKj6R6LQc6jx+p5DEJT58demoQ7rzHovMRoo0NjFu154pTzQ69VMdxZ7xpfPOe90d4q8wV5lp8eGc8USjemOUNK0nktYyU5xFhJTis9rtFBIkQx9sq4Vw3+9B6f4FEKUC+MN1nSli8x0n/JCLzIbNJ5SIYOcl4NALwsSOtxV4z7HQETBClZqLlWq6dVW+5kKb6fREm6Z3K9P9wkJAxYXloFsy/U45nzpIhXaSSDPAxPTiSGJycuPftCPTnnp+FiRHE1zN6vp8x5o6LaJeMa8ukmSRk8OH4wjJtNj+AYrec5psx5MBQNU+vswpO1uR7JuTHJsZjiJEeKIN9I6I0pLYTOUc2ZswKUbSub5Nxc3calBN/ANMnpIJuJlY5YMdYkoKJaY7zOoYGHBKfE+VwQg2VUjfPWdTzWBKe05622qpy3RoXUoGWodV+rntfaqnbe+7/aY+uel47/oue1jtn8nLfa2PTTPtdBq1znw9I/3MTXNvR7ZFzpraYIlfXIuPJ7ugm3kPnHBz0yrp5PlU/aM2f751VMKicRw4ciMWg432Nrpcf1Okt1by2KXTKeIY9fNSWhpy6via+BwXOLKXY+RU1qAIeY1BgyrfRoDH3LYzHFlRy23cO3gFbDSN/hWUxJNWfzlRx+7RPzuoEXEcnwxgAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
@@ -139,7 +139,6 @@ var bg,
     TITLE = 'BLADE GUNNER',
     FONT_SIZE = 8, // in pixels
     FONT_FAMILY = 'Courier',
-    FONT = FONT_SIZE + 'px Courier', // in pixels
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
@@ -384,10 +383,13 @@ function endGame() {
 
 function renderEndGame() {
   requestAnimationFrame(function() {
-    viewport_ctx.fillStyle = GREY;
-    viewport_ctx.fillRect(0, 0, viewport.width, viewport.height);
-    viewport_ctx.fillStyle = RED;
-    viewport_ctx.fillText(TITLE, 0, 0);
+    ctx.fillStyle = GREY;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    renderTitle(0, 2);
+
+    ctx.fillStyle = WHITE;
+    blit();
+
     viewport_ctx.fillStyle = WHITE;
     var text = hero.dead ? 'Oh no, you died!'
                : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
@@ -407,13 +409,10 @@ function renderEndGame() {
 
 function renderGameTitle() {
   requestAnimationFrame(function() {
-    viewport_ctx.fillStyle = GREY;
-    viewport_ctx.fillRect(0, 0, viewport.width, viewport.height);
-
-    var font_size = Math.floor(3 * FONT_SIZE * scaleToFit);
-    viewport_ctx.font = font_size + 'px ' + FONT_FAMILY;
-    viewport_ctx.fillStyle = RED;
-    viewport_ctx.fillText(TITLE, (viewport.width - viewport_ctx.measureText(TITLE).width) / 2, 0);
+    ctx.fillStyle = GREY;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    renderTitle((WIDTH - 52 * 3) / 2, 2, 3);
+    blit();
 
     viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
     viewport_ctx.fillStyle = WHITE;
@@ -455,39 +454,62 @@ function renderEntity(entity) {
 
 }
 
+// TODO measure text, returning the total width and all sx,sy,sw,sh,dx,dy,dw,dh
+function measureText(str) {
+
+}
+
 /* inspired from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
-function renderText(str, x, y /* uglify optim */, char, extrawide, extrathin, lowercase, n, sy, offset) {
-  offset = 0;
+function renderText(str, dx, dy) {
+  var dxOffset = 0
   for (var i = 0; i < str.length; i++) {
-    char = str[i];
-    extrawide = char === 'm' || char === 'w';
-    extrathin = char === 'i';
-    lowercase = char.toUpperCase() !== char;
-    n = data.alphabet.indexOf(char) % 41; // A-Z + 0-9 + punctuation
+    var char = str[i];
+    var lowercase = char.toUpperCase() !== char;
+    // uppercase are 4 pixel wide, lowercase are 3 pixel wide
+    var w = lowercase ? 3 : 4;
+    var h = 6;
+    // m and w are 2 pixel wider, t, 1 and / are 1 pixel narrower,
+    // i, :, and , are 2 pixel narrower, . and ! are 3 pixels narrower
+    var wOffset = (char === 'm' || char === 'w') ? 2 :
+                  (char === 't' || char === '1' || char === '/') ? -1 :
+                  (char === 'i' || char === ',' || char === ':') ? -2 :
+                  (char === '.' || char === '!') ? -3 :
+                   0;
+    // w tile is after m tile, which is 2 pixel wider
+    var twOffset = char === 'w' ? 2 : 0;
+    // char tiles are 4 pixel wide, regardless the character inside
+    var tw = 4;
+    // 1st row of char spritesheet contains 41 chars: A-Z, 0-9 and 5 punctuation signs
+    // 2nd row of char spritsheet contains 26 chars: a-z
+    var n = data.alphabet.indexOf(char) % 41;
+    // lowercase char are located on the 2nd row of char spritesheet
     sy = lowercase ? 6 : 0;
-    if (extrawide) console.log(extrawide, char);
     ctx.drawImage(
       data.charset,
-      n * 4,
-      sy,
-      // TODO handle extra extra offset for w, the 2nd extrawide char
-      4 + (extrawide ? 2 : (extrathin ? -2 : 0)), //sw
-      6, //sh
-      x + offset,
-      y, //dy
-      4 + (extrawide ? 2 : (extrathin ? -2 : 0)), //dh
-      6 //dw
+      n * tw + twOffset, // sx
+      sy, // sy
+      w + wOffset, //sw
+      h, //sh
+      dx + dxOffset,
+      dy, //dy
+      w + wOffset, //dw
+      h //dh
     );
-    offset += 4 + (lowercase ? (extrawide ? 2 : (extrathin ? -2 : 0)) : 1);
+    dxOffset += w + wOffset + 1;
   }
+}
+
+function renderTitle(x, y, scale) {
+  scale = scale || 1;
+  ctx.drawImage(data.charset, 108, 6, 52, 6, x, y, 52 * scale, 6 * scale);
 }
 
 function renderScore(context, /* uglify optim */ casualties) {
   context.fillStyle = GREY;
   context.fillRect(0, 0, WIDTH, data.bg.size);
-  ctx.drawImage(data.charset, 108, 6, 52, 6, 0, 2, 52, 6);
+  renderTitle(0, 2);
   renderText(('android' + (nb_androids > 1 ? 's' : '') + ':' + nb_retires + '/' + nb_androids), WIDTH / 3, 2);
-  casualties = 'casulaties:' + nb_casualties;
+  casualties = 'casualties:' + nb_casualties;
   renderText(casualties, WIDTH - casualties.length*5, 2);
 }
 
@@ -521,11 +543,11 @@ function resize() {
   viewport.height = HEIGHT * scaleToFit;
 
   // disable smoothing on scaling
-  viewport_ctx.mozImageSmoothingEnabled = false;
-  viewport_ctx.msImageSmoothingEnabled = false;
-  viewport_ctx.imageSmoothingEnabled = false;
+  viewport_ctx.mozImageSmoothingEnabled = ctx.mozImageSmoothingEnabled = false;
+  viewport_ctx.msImageSmoothingEnabled = ctx.msImageSmoothingEnabled = false;
+  viewport_ctx.imageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
 
-  // TODO remove
+  // TODO remove when all text is rendered on ctx
   viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
   viewport_ctx.textBaseline = 'top';
 };
@@ -615,16 +637,14 @@ function init() {
   // visible canvas, in window dimensions
   viewport = document.querySelector('canvas');
   viewport_ctx = viewport.getContext('2d');
-  resize();
-  addEventListener('resize', resize);
 
   // backbuffer canvas, in game dimensions
   canvas = document.createElement('canvas');
   canvas.width = WIDTH;
   canvas.height = HEIGHT;
   ctx = canvas.getContext('2d');
-  ctx.font = FONT;
-  ctx.textBaseline = 'top';
+  resize();
+  addEventListener('resize', resize);
 
   bg = document.createElement('canvas')
   bg.width = WIDTH;
