@@ -5,7 +5,6 @@ var bg,
     ctx,
     viewport,
     viewport_ctx,
-    scaleToFit,
     currentTime,
     lastTime,
     elapsedTime,
@@ -21,7 +20,7 @@ var bg,
     hero,
     data = {
       alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./,!abcdefghijklnopqrstuvxyzmw',
-      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAMCAYAAADs+hbCAAABvUlEQVR42u2Ya47DIAyEc8G9/xX6d0+Qtj8iRRR7vrFB2pWKFCU8YsAM48dxvMr5+zjfz/37qqv+e332RP9f32PbOGdlbfe+7v7IHolu3DrZ12z9kY6JfGf+2ZllJRr70b5SoUQ5uwDZAUik6Ejx6rKt1mcGBKr7TM8ZiFx52wCpDo2CRgGIApLK2wVIwspkPmoxFMurg3XZLwNrxrgdMKaA7JhIcosi+btMNlW+uix0HtedIfsngHXYh5h60u+a7Gwdf95kO+zbAaRikswcUoajgMzAEK21ctirAOmYbMLmlsmusgBlFwriqvOtAh/H2a/4ZuRC0otI3YoIKHQ/2R5csLn1b/ln5Tx+zusZ21RdtUV943elLaq3HNBqdNaRXzETavyK6PBbdt04aH5cv1BFrvTAld9EzGn2dlwGIo+8lQuTRs2CIStsNmPHqK07z2wMOngV0XVSKS4QiePuAkCNJ+kUJ9Bw9EkAmQHBMbld8NG5sckmB0QUSFMQVfkZQzrylUtAXIbKvGr9WL7Jdh2GVP87FwQz5OpUj5PLqoynyeQO4DrpEppBIICf7k0EKGP7yqAmApNqU2x9L0/sjLERF26Y+QAAAABJRU5ErkJggg==',
+      charset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKQAAAAMCAYAAADs+hbCAAABuklEQVR42u2YWQ7CMAxEe0HufwV+OUGBj0pViD1v7BTxQaSqzdIszni8bNur7I/7/n7O30dd9Z/rsyf6//ge28Y1K3s793XPR8+oZOPWyblm+49kTOZ31p/dWVaisR/tqwRIhXMVIMl4V9CR4MmFr5RnBgQq+0zOGYjUfF8DpLo0ChoFIApIOt9VgCSsTNajFkOxvLpYl/0ysCoFrIIxBWTHRBKtjOa/ymRT4Stloeu47gw5PwGswz7E1JN+12Rn+/h5k+2wbweQikkyNqAMRwGZgSHaa+WyVwHSMdmEzS2TXWUByi4UxFXnWwU+jrNf8c2IQlJFpG5FxF70PNkZMsBSJXBB/S8/XPbtth/P2Kbqqi3qG78rbVG9HA25jiqOqsT8yoxcDoC/Bn9Z46D5cf1CFbnSC1d+U9Wcun5vtJ/KW7kwadQsGLLCZjN2jNq668zGoItXEV0nleICkTjuK98IGCBVo/KWJbkDIDgmtws+ujY22QowVIA0BVGdP2PICiMpxajuj8ilA3iX7ToMqf53FAQz5OpUj5PLqoynyeQO4DrpEppBIICfnk0EKGP7yqAmApNqU2x9Lk8ISaG1Im4NsAAAAABJRU5ErkJggg==',
       tileset: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAD8AAAAtCAYAAAAZQbNPAAACrUlEQVR42uWaMU7FMAyGcxFGhBA7t2Dh3YWRhWM8NjYQl4CBhYMwsHCCoJS6/BjbcfLS0pQnWS3lq2M7SeM6DWH8xbsQuQT2W5T5eItcwhy/wYDX+1/yZ4zgOHf+6GwXSTS/ro93kUR3/tsANCbWMjFcTAxvGK8jX+J8cvj0MU4iBWDQn+wYRQ3Aw+V5tjeWZBbr+WQMiWbQkozmuGfOW4HAgIjOPz2/DJLOtQDVMPi3xNC5t9c5h1MBA8AZmgpTALAnuEF8qHKj6R6LQc6jx+p5DEJT58demoQ7rzHovMRoo0NjFu154pTzQ69VMdxZ7xpfPOe90d4q8wV5lp8eGc8USjemOUNK0nktYyU5xFhJTis9rtFBIkQx9sq4Vw3+9B6f4FEKUC+MN1nSli8x0n/JCLzIbNJ5SIYOcl4NALwsSOtxV4z7HQETBClZqLlWq6dVW+5kKb6fREm6Z3K9P9wkJAxYXloFsy/U45nzpIhXaSSDPAxPTiSGJycuPftCPTnnp+FiRHE1zN6vp8x5o6LaJeMa8ukmSRk8OH4wjJtNj+AYrec5psx5MBQNU+vswpO1uR7JuTHJsZjiJEeKIN9I6I0pLYTOUc2ZswKUbSub5Nxc3calBN/ANMnpIJuJlY5YMdYkoKJaY7zOoYGHBKfE+VwQg2VUjfPWdTzWBKe05622qpy3RoXUoGWodV+rntfaqnbe+7/aY+uel47/oue1jtn8nLfa2PTTPtdBq1znw9I/3MTXNvR7ZFzpraYIlfXIuPJ7ugm3kPnHBz0yrp5PlU/aM2f751VMKicRw4ciMWg432Nrpcf1Okt1by2KXTKeIY9fNSWhpy6via+BwXOLKXY+RU1qAIeY1BgyrfRoDH3LYzHFlRy23cO3gFbDSN/hWUxJNWfzlRx+7RPzuoEXEcnwxgAAAABJRU5ErkJggg==',
       bg: {
         size: 9,
@@ -137,8 +136,6 @@ var bg,
       },
     }
     TITLE = 'BLADE GUNNER',
-    FONT_SIZE = 8, // in pixels
-    FONT_FAMILY = 'Courier',
     GREY = '#343635',
     WHITE = '#fff1e8',
     RED = '#ff004d',
@@ -381,67 +378,65 @@ function endGame() {
 }
 
 
-function renderEndGame() {
+function renderEndGame(/* uglify optim */ text) {
   requestAnimationFrame(function() {
     ctx.fillStyle = GREY;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     renderTitle(0, 2);
 
     ctx.fillStyle = WHITE;
-    blit();
-
-    viewport_ctx.fillStyle = WHITE;
-    var text = hero.dead ? 'Oh no, you died!'
-               : nb_casualties === nb_bystanders ? 'Oh no, all civilians died!'
-               : 'You retired ' + nb_androids + ' glitchy android' + (nb_androids > 1 ? 's' : '');
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3);
-    text = 'Press ENTER to play again' + (win ? 'st' : '');
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3);
+    text = measureText(hero.dead ? 'Oh no, you died!' :
+                       nb_casualties === nb_bystanders ? 'Oh no, all civilians died!' :
+                       'You retired ' + nb_androids + ' glitchy android' + (nb_androids > 1 ? 's' : ''));
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT / 3, text.chars)
     if (win) {
-      var font_size = Math.floor(FONT_SIZE * scaleToFit * 1.2);
-      text = 'with ' + nb_casualties + ' casualt' + (nb_casualties > 1 ? 'ies' : 'y') + '!';
-      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 + font_size);
-      text = 'one more android';
-      viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 + font_size);
+      text = measureText('with ' + nb_casualties + ' casualt' + (nb_casualties > 1 ? 'ies' : 'y') + '!');
+      renderText(text.str, (WIDTH - text.length) / 2, HEIGHT / 3 + 9);
     }
+
+    text = measureText('Press ENTER to play again' + (win ? 'st' : '.'));
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT * 2 / 3, text.chars)
+    if (win) {
+      text = measureText('one more android.');
+      renderText(text.str, (WIDTH - text.length) / 2, HEIGHT * 2 / 3 + 9);
+    }
+
+    blit();
   });
 }
 
-function renderGameTitle() {
+function renderGameTitle(/* uglify optim */ text) {
   requestAnimationFrame(function() {
     ctx.fillStyle = GREY;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
     renderTitle((WIDTH - 52 * 3) / 2, 2, 3);
+
+    ctx.fillStyle = WHITE;
+    text = measureText('Retire glitchy androids');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT / 3 - 9, text.chars);
+    text = measureText('before they inflict casualties.');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT / 3, text.chars);
+    text = measureText('Avoid casualties yourself.');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT / 3 + 9, text.chars);
+
+
+    ctx.drawImage(data.tileset, data.hero.sprites[0].walk[0].x, data.hero.sprites[0].walk[0].y, data.hero.size, data.hero.size,
+                                0, HEIGHT / 3 - 4, data.hero.size * 2, data.hero.size * 2);
+    ctx.drawImage(data.flippedTileset, data.android.sprites[0].shoot[0].x, data.android.sprites[0].shoot[0].y, data.android.size, data.android.size,
+                                       WIDTH - data.android.size * 2.5, HEIGHT / 3 - 18, data.android.size * 2, data.android.size * 2);
+    ctx.drawImage(data.flippedTileset, data.android.sprites[1].shoot[0].x, data.android.sprites[1].shoot[0].y, data.android.size, data.android.size,
+                                       WIDTH - data.android.size * 2, HEIGHT / 3 + 9, data.android.size * 2, data.android.size * 2);
+
+    text = measureText('Move: arrows/WASD/ZQSD   Shoot: SPACE');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT * 2 / 3 - 9, text.chars);
+
+    text = measureText('Press ENTER to start');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT * 2 / 3 + 14, text.chars);
+
+    text = measureText('By Jerome Lecomte at JS13KGAMES 2016');
+    renderText(text.str, (WIDTH - text.length) / 2, HEIGHT - 9, text.chars);
+
     blit();
-
-    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
-    viewport_ctx.fillStyle = WHITE;
-    var line_height = Math.floor(1.2 * FONT_SIZE * scaleToFit);
-    var text = 'Retire glitchy androids';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 - line_height);
-    text = 'before they inflict casualties.';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3);
-    text = 'Avoid casualties yourself.';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height / 3 + line_height);
-    viewport_ctx.drawImage(data.tileset, data.hero.sprites[0].walk[0].x, data.hero.sprites[0].walk[0].y, data.hero.size, data.hero.size,
-                                         0, viewport.height / 3 - line_height / 2, data.hero.size * scaleToFit * 1.5, data.hero.size * scaleToFit * 1.5);
-    viewport_ctx.drawImage(data.flippedTileset, data.android.sprites[0].shoot[0].x, data.android.sprites[0].shoot[0].y, data.android.size, data.android.size,
-                                         viewport.width - data.android.size * scaleToFit * 2, viewport.height / 3 - line_height * 1.5, data.android.size * scaleToFit * 1.5, data.android.size * scaleToFit * 1.5);
-    viewport_ctx.drawImage(data.flippedTileset, data.android.sprites[1].shoot[0].x, data.android.sprites[1].shoot[0].y, data.android.size, data.android.size,
-                                         viewport.width - data.android.size * scaleToFit * 1.5, viewport.height / 3 + line_height * 0.5, data.android.size * scaleToFit * 1.5, data.android.size * scaleToFit * 1.5);
-
-    text = 'Move: arrows/WASD/ZQSD   Shoot: SPACE';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height * 2 / 3 - line_height);
-
-    text = 'Press ENTER to start';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height - 3 * line_height);
-
-    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit / 2) + 'px ' + FONT_FAMILY;
-    text = 'Created by Jerome Lecomte for JS13KGAMES 2016';
-    viewport_ctx.fillText(text, (viewport.width - viewport_ctx.measureText(text).width) / 2, viewport.height - line_height * 2 / 3);
-
-    // restore font
-    viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
   });
 }
 
@@ -454,13 +449,8 @@ function renderEntity(entity) {
 
 }
 
-// TODO measure text, returning the total width and all sx,sy,sw,sh,dx,dy,dw,dh
 function measureText(str) {
-
-}
-
-/* inspired from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
-function renderText(str, dx, dy) {
+  var chars = [];
   var dxOffset = 0
   for (var i = 0; i < str.length; i++) {
     var char = str[i];
@@ -484,19 +474,31 @@ function renderText(str, dx, dy) {
     var n = data.alphabet.indexOf(char) % 41;
     // lowercase char are located on the 2nd row of char spritesheet
     sy = lowercase ? 6 : 0;
-    ctx.drawImage(
-      data.charset,
-      n * tw + twOffset, // sx
-      sy, // sy
-      w + wOffset, //sw
-      h, //sh
-      dx + dxOffset,
-      dy, //dy
-      w + wOffset, //dw
-      h //dh
-    );
+    chars.push({
+      sx: n * tw + twOffset,
+      sy: sy,
+      sw: w + wOffset,
+      sh: h,
+      dxOffset: dxOffset,
+      dw: w + wOffset,
+      dh: h
+    });
     dxOffset += w + wOffset + 1;
   }
+  return {
+    chars: chars,
+    length: dxOffset,
+    str: str
+  };
+}
+
+/* inspired from Glitch Hunters by @cmonkeybusiness github.com/coding-monkey-business/glitch-hunters */
+function renderText(str, dx, dy, chars) {
+  chars = chars || measureText(str).chars;
+  chars.forEach(function(char) {
+    ctx.drawImage(data.charset, char.sx, char.sy, char.sw, char.sh,
+                                dx + char.dxOffset, dy, char.dw, char.dh);
+  });
 }
 
 function renderTitle(x, y, scale) {
@@ -504,13 +506,14 @@ function renderTitle(x, y, scale) {
   ctx.drawImage(data.charset, 108, 6, 52, 6, x, y, 52 * scale, 6 * scale);
 }
 
-function renderScore(context, /* uglify optim */ casualties) {
+function renderScore(context /* uglify optim */, text) {
   context.fillStyle = GREY;
   context.fillRect(0, 0, WIDTH, data.bg.size);
   renderTitle(0, 2);
-  renderText(('android' + (nb_androids > 1 ? 's' : '') + ':' + nb_retires + '/' + nb_androids), WIDTH / 3, 2);
-  casualties = 'casualties:' + nb_casualties;
-  renderText(casualties, WIDTH - casualties.length*5, 2);
+  text = measureText('android' + (nb_androids > 1 ? 's' : '') + ':' + nb_retires + '/' + nb_androids);
+  renderText(text.str, (WIDTH - text.length) / 2, 2);
+  text = measureText('casualties:' + nb_casualties);
+  renderText(text.str, WIDTH - text.length, 2, text.chars);
 }
 
 function createBackground(variant, size, sprite) {
@@ -537,7 +540,7 @@ function createBackground(variant, size, sprite) {
   }
 }
 
-function resize() {
+function resize(/* uglify optim */ scaleToFit) {
   scaleToFit = Math.min(window.innerWidth / WIDTH, window.innerHeight / HEIGHT);
   viewport.width = WIDTH * scaleToFit;
   viewport.height = HEIGHT * scaleToFit;
@@ -546,10 +549,6 @@ function resize() {
   viewport_ctx.mozImageSmoothingEnabled = ctx.mozImageSmoothingEnabled = false;
   viewport_ctx.msImageSmoothingEnabled = ctx.msImageSmoothingEnabled = false;
   viewport_ctx.imageSmoothingEnabled = ctx.imageSmoothingEnabled = false;
-
-  // TODO remove when all text is rendered on ctx
-  viewport_ctx.font = Math.floor(FONT_SIZE * scaleToFit) + 'px ' + FONT_FAMILY;
-  viewport_ctx.textBaseline = 'top';
 };
 
 function newGame(keyEvent) {
