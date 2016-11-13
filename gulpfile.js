@@ -3,6 +3,7 @@
 var fs = require('fs'),
     cheerio = require('cheerio'),
     gulp = require('gulp'),
+    gutil = require('gulp-util'),
     concat = require('gulp-concat'),
     htmlmin = require('gulp-htmlmin'),
     rimraf = require('gulp-rimraf'),
@@ -126,16 +127,29 @@ gulp.task('report', ['zip'], function() {
 
 // base64 encode png spritesheet asset and inline it in js
 gulp.task('encode', function()  {
-  fs.readFile('src/assets.png', function(err, original_data) {
-    var base64Tiles = 'data:image/png;base64,' + original_data.toString('base64');
+  var assets = [
+    { image: 'assets.png', property: 'tileset' },
+    { image: 'charset.png', property: 'charset' }
+  ];
 
-    fs.readFile('src/charset.png', function(err, original_data) {
-      var base64Chars = 'data:image/png;base64,' + original_data.toString('base64');
+  var loaders = [];
+  assets.forEach(function(asset) {
+    loaders.push(new Promise(function(resolve) {
+      fs.readFile('src/' + asset.image, function(err, data) {
+        asset.data = 'data:image/png;base64,' + data.toString('base64');
+        resolve(asset);
+      });
+    }));
+  });
 
-      gulp.src('src/js/game.js')
-        .pipe(replace(/tileset: '.*'/gm, 'tileset: \'' + base64Tiles + '\''))
-        .pipe(replace(/charset: '.*'/gm, 'charset: \'' + base64Chars + '\''))
-        .pipe(gulp.dest('./src/js/'));
+  return Promise.all(loaders).then(function(values) {
+    var stream = gulp.src('src/js/game.js');
+
+    values.forEach(function(value) {
+      stream.pipe(replace(new RegExp(value.property + ': \'.*\'', 'gm'),
+                          value.property + ': \'' + value.data + '\''));
     });
+
+    return stream.pipe(gulp.dest('./src/js/'));
   });
 });
