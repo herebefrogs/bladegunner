@@ -364,7 +364,10 @@ function checkEndGame() {
 }
 
 function endGame() {
-  ga('send', 'event', 'bladegunner|level:' + nb_androids, (win ? 'all androids retired' : (hero.dead ? 'player died' : 'all bystanders died')), 'casualties:' + nb_casualties);
+  gtag('event', (win ? 'all androids retired' : (hero.dead ? 'player died' : 'all bystanders died')), {
+    'event_category': 'bladegunner|level:' + nb_androids,
+    'event_label': 'casualties:' + nb_casualties
+  })
   cancelAnimationFrame(requestId);
 
   removeEventListener('keydown', keyPressed);
@@ -620,7 +623,10 @@ function startGame() {
 
   lastTime = Date.now();
   loop();
-  ga('send', 'event', 'bladegunner|level:' + nb_androids, 'game start', 'bystanders:' + nb_bystanders);
+  gtag('event', 'game start', {
+    'event_category': 'bladegunner|level:' + nb_androids,
+    'event_label': 'bystanders:' + nb_bystanders
+  })
 }
 
 // Game loop
@@ -667,7 +673,10 @@ function init() {
     img.src = data.charset;
   });
   img.src = data.tileset;
-  ga('send', 'event', 'bladegunner|splash screen');
+  gtag('event', 'bladegunner|splash screen', {
+    'event_category': '',
+    'event_label': ''
+  })
 };
 
 function flipTileset(img) {

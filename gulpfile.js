@@ -91,7 +91,7 @@ gulp.task('addjs', ['jsmin'], function() {
     console.log(extra_js.length, 'OK', exclude_min);
 
     var stream = gulp.src('src/index.html')
-      .pipe(replace(/<script.*>(.|\n)*<\/script>/i, '<script>'+extra_js+' '+js+'</script>'))
+      .pipe(replace(/<script.*>(.|\n)*<\/script>/i, '<script async src="https://www.googletagmanager.com/gtag/js?id=G-G36K3DYXSS"></script><script>'+extra_js+' '+js+'</script>'))
       .pipe(htmlmin({collapseWhitespace: true}))
       .pipe(gulp.dest('./build'));
 
